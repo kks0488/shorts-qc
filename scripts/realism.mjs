@@ -16,7 +16,7 @@ try {
   ];
   const manifest = {schema_version:'1.0', fps:24, duration:12, width:720, height:1280,
     provenance:'Original motion design composed from our own app screen captures; no stock footage or external artwork.',
-    ground_truth:'Exact encoded frame intervals; all other frames are negatives for the four evaluated checks. Two source styles, not a population benchmark.',
+    ground_truth:'Exact encoded frame intervals; all other frames are negatives for the six evaluated checks. Three source styles, not a population benchmark.',
     clips:[]};
   for (const item of sources) {
     const png = (await readFile(item.image)).toString('base64');
