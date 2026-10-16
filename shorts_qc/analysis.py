@@ -11,14 +11,14 @@ import numpy as np
 from .config import Config
 
 FIXES = {
-    "blur": "Re-render or replace this segment; sharpening cannot recover missing detail.",
-    "black": "Review and trim unintended black frames.",
-    "dark": "Apply a modest exposure lift, then re-check highlights and noise.",
-    "frozen": "Review stillness; trim only if it is an unintended hold.",
-    "flicker": "Re-render with stable exposure; inspect flashing before publishing.",
-    "scene_cut": "Review this abrupt transition; an intentional cut can be accepted.",
-    "caption_safe_zone": "Move captions inside the highlighted safe rectangle and re-render.",
-    "caption_clipped": "Re-render captions with edge margin; missing glyphs cannot be recovered.",
+    "blur": "Export this part again or replace the blurry shot. Sharpening will not restore lost detail.",
+    "black": "Check for an unintended black gap. Remove it only if it is a mistake.",
+    "dark": "Brighten this part a little, then check for washed-out highlights and grain.",
+    "frozen": "Check whether the pause is intentional. Remove it only if the video should be moving.",
+    "flicker": "Export again with steady brightness. Review the flashing before publishing.",
+    "scene_cut": "Check this sudden change of shot. Keep it if the cut is intentional.",
+    "caption_safe_zone": "Move the text inside the green safe rectangle so app buttons are less likely to cover it. Export again.",
+    "caption_clipped": "Move the text away from the edge and export again. Check the original wording for missing letters.",
     "letterbox": "Review the border and source framing before padding to vertical format.",
     "aspect_ratio": "Fit inside a 9:16 canvas without stretching or cropping.",
 }
@@ -105,7 +105,7 @@ def build_issues(rows, fps, cfg):
                 minimum = cfg.freeze_seconds if kind == "frozen" else (0 if kind in ("scene_cut", "aspect_ratio", "flicker") else cfg.min_issue_seconds)
                 if length+1e-6 >= minimum:
                     issues.append({"type": kind, "start": round(start/fps, 4), "end": round(i/fps, 4),
-                                   "severity": "review" if kind in ("scene_cut", "letterbox", "dark") else "error",
+                                   "severity": "review" if kind in ("scene_cut", "letterbox", "dark", "frozen") else "error",
                                    "message": FIXES[kind], "frames": i-start})
                 else:
                     for j in range(start, i):
@@ -181,13 +181,16 @@ def analyze(input_path, output_dir, config=None, text_model=None):
                 boxes = detector.detect(frame)
                 last_text = idx/fps
             unsafe, clipped = caption_flags(boxes, cfg)
+            blurry = not black and mean >= cfg.dark_mean and lap < cfg.blur_laplacian and fft < cfg.blur_fft
             row = {"frame": idx, "time": round(idx/fps, 5), "mean": round(mean, 4), "laplacian": round(lap, 4),
                    "fft_energy": round(fft, 6), "difference": round(diff, 4), "ssim": round(similarity, 6),
                    "histogram_distance": round(hist_diff, 6), "luminance_delta": round(delta, 4),
                    "structure_difference": round(structure_diff, 4), "text_boxes": boxes,
-                   "blur": not black and mean >= cfg.dark_mean and lap < cfg.blur_laplacian and fft < cfg.blur_fft,
+                   "blur": blurry,
                    "black": black, "dark": not black and mean < cfg.dark_mean,
-                   "frozen": previous is not None and not black and diff < cfg.freeze_diff and similarity > .99,
+                   # Severe blur destroys motion evidence. It must not also offer
+                   # a freeze trim that could discard a moving but blurred shot.
+                   "frozen": previous is not None and not black and not blurry and not rows[-1]["blur"] and diff < cfg.freeze_diff and similarity > .99,
                    "scene_cut": previous is not None and diff > cfg.cut_diff and similarity < cfg.cut_ssim and structure_diff > cfg.flicker_structure_diff,
                    "flicker": False, "caption_safe_zone": unsafe, "caption_clipped": clipped,
                    "letterbox": letterbox(gray, cfg), "aspect_ratio": abs(width/height-9/16) > cfg.aspect_tolerance}

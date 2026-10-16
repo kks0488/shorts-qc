@@ -1,8 +1,8 @@
 {
-  "captured_at": "2026-10-16T07:12:32.972122+00:00",
+  "captured_at": "2026-10-16T08:06:15.449756+00:00",
   "region": "ap-southeast-2",
   "endpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws",
-  "stack_status": "UPDATE_COMPLETE",
+  "stack_status": "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
   "outputs": {
     "UploadEndpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/api/uploads",
     "UploadBucket": "shorts-qc-381183038133-ap-southeast-2-uploads",
@@ -16,32 +16,17 @@
   "runs": [
     {
       "clip": "demo.mp4",
-      "upload_id": "02edb9b58cb14a54967436398ccc3a19",
-      "job_id": "abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61",
-      "request_id": "7fd18287-35df-49f9-8a97-de110bae6077",
-      "upload_to_report_seconds": 47.094,
-      "analysis_seconds": 12.8988,
+      "upload_id": "9dbcddda626a4ed898b0536da60e5b04",
+      "job_id": "7f013adb0c684bab69e20032f6ca1536e65d8dc66f2375c6220a2a2824c540a8",
+      "request_id": "645ac306-849a-49d7-877c-a33a4833b87d",
+      "upload_to_report_seconds": 140.685,
+      "analysis_seconds": 7.9778,
       "frames": 144,
       "opencv": "5.0.0",
       "caption_detection": "active",
       "issues": 11,
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61/report.json",
-      "viewer_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/?report=/reports/abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61/report.json",
-      "replay_http_status": 412
-    },
-    {
-      "clip": "shorts-qc-repaired.mp4",
-      "upload_id": "1e2d7e01be9c403eaee69752c7b3064b",
-      "job_id": "aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee",
-      "request_id": "daa94ed6-b5b5-4e6b-a990-73c98c082824",
-      "upload_to_report_seconds": 12.449,
-      "analysis_seconds": 6.7129,
-      "frames": 120,
-      "opencv": "5.0.0",
-      "caption_detection": "active",
-      "issues": 6,
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee/report.json",
-      "viewer_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/?report=/reports/aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee/report.json",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/7f013adb0c684bab69e20032f6ca1536e65d8dc66f2375c6220a2a2824c540a8/report.json",
+      "viewer_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/?report=/reports/7f013adb0c684bab69e20032f6ca1536e65d8dc66f2375c6220a2a2824c540a8/report.json",
       "replay_http_status": 412
     }
   ],
@@ -60,8 +45,8 @@
       "LogicalResourceId": "Analyze",
       "PhysicalResourceId": "shorts-qc-analyze",
       "ResourceType": "AWS::Lambda::Function",
-      "LastUpdatedTimestamp": "2026-10-16T07:10:06.554000+00:00",
-      "ResourceStatus": "CREATE_COMPLETE",
+      "LastUpdatedTimestamp": "2026-10-16T08:06:03.576000+00:00",
+      "ResourceStatus": "UPDATE_COMPLETE",
       "DriftInformation": {
         "StackResourceDriftStatus": "NOT_CHECKED"
       }
@@ -110,7 +95,7 @@
       "LogicalResourceId": "Api",
       "PhysicalResourceId": "shorts-qc-api",
       "ResourceType": "AWS::Lambda::Function",
-      "LastUpdatedTimestamp": "2026-10-16T07:17:00.935000+00:00",
+      "LastUpdatedTimestamp": "2026-10-16T08:06:13.755000+00:00",
       "ResourceStatus": "UPDATE_COMPLETE",
       "DriftInformation": {
         "StackResourceDriftStatus": "NOT_CHECKED"
@@ -242,7 +227,7 @@
       "FunctionName": "shorts-qc-api",
       "MemorySize": 256,
       "Timeout": 10,
-      "LastModified": "2026-10-16T07:16:54.000+0000",
+      "LastModified": "2026-10-16T08:06:07.000+0000",
       "State": "Active",
       "PackageType": "Zip",
       "ReservedConcurrentExecutions": 4
@@ -251,7 +236,7 @@
       "FunctionName": "shorts-qc-analyze",
       "MemorySize": 2048,
       "Timeout": 180,
-      "LastModified": "2026-10-16T07:09:50.539+0000",
+      "LastModified": "2026-10-16T08:05:48.000+0000",
       "State": "Active",
       "PackageType": "Image",
       "ReservedConcurrentExecutions": 1
@@ -412,14 +397,16 @@
         "Id": "duration",
         "Label": "Duration",
         "Timestamps": [
-          "2026-10-16T16:18:00+09:00",
-          "2026-10-16T16:13:00+09:00",
-          "2026-10-16T16:12:00+09:00"
+          "2026-10-16T17:07:00+09:00",
+          "2026-10-16T17:06:00+09:00",
+          "2026-10-16T17:01:00+09:00",
+          "2026-10-16T17:00:00+09:00"
         ],
         "Values": [
-          8343.62,
-          7051.61,
-          37549.93
+          10557.77,
+          36500.01,
+          10512.2,
+          11715.14
         ],
         "StatusCode": "Complete"
       },
@@ -427,14 +414,16 @@
         "Id": "invocations",
         "Label": "Invocations",
         "Timestamps": [
-          "2026-10-16T16:18:00+09:00",
-          "2026-10-16T16:13:00+09:00",
-          "2026-10-16T16:12:00+09:00"
+          "2026-10-16T17:07:00+09:00",
+          "2026-10-16T17:06:00+09:00",
+          "2026-10-16T17:01:00+09:00",
+          "2026-10-16T17:00:00+09:00"
         ],
         "Values": [
+          2.0,
           1.0,
-          1.0,
-          1.0
+          2.0,
+          2.0
         ],
         "StatusCode": "Complete"
       },
@@ -442,11 +431,13 @@
         "Id": "errors",
         "Label": "Errors",
         "Timestamps": [
-          "2026-10-16T16:18:00+09:00",
-          "2026-10-16T16:13:00+09:00",
-          "2026-10-16T16:12:00+09:00"
+          "2026-10-16T17:07:00+09:00",
+          "2026-10-16T17:06:00+09:00",
+          "2026-10-16T17:01:00+09:00",
+          "2026-10-16T17:00:00+09:00"
         ],
         "Values": [
+          0.0,
           0.0,
           0.0,
           0.0
@@ -455,38 +446,5 @@
       }
     ],
     "Messages": []
-  },
-  "refreshed_at": "2026-10-16T07:21:30.555766+00:00",
-  "browser_verification": {
-    "script": "scripts/capture-aws.mjs",
-    "result": "PASS",
-    "job_id": "f063236b97da252dec7bdc3da9b79ccbe57cf3508dd228fb81b3e87f374e4f43",
-    "request_id": "11a1a5eb-f142-4879-b374-b9fb4e9acb7f",
-    "worker_elapsed_seconds": 8.267,
-    "checks": [
-      "public HTTPS viewer",
-      "checksummed browser upload and S3 CORS",
-      "real OpenCV + DB inference",
-      "polling",
-      "share URL",
-      "private local video blob preview",
-      "video decode/seek and HTTP 206",
-      "JSON/CSV/contact-sheet downloads",
-      "finding filters",
-      "390px mobile overflow"
-    ],
-    "screenshots": [
-      "media/aws-viewer.png",
-      "media/aws-upload-complete.png",
-      "media/aws-evidence.png",
-      "media/aws-metrics.png"
-    ],
-    "screenshot_dimensions": [
-      1920,
-      1080
-    ],
-    "analysis_seconds": 7.9693,
-    "frames": 144,
-    "issues": 11
   }
 }

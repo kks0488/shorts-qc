@@ -1,6 +1,7 @@
 """Public, credit-bounded demo API and dependency-free HTTPS report viewer."""
 import base64
 import hashlib
+import hmac
 import json
 import os
 from pathlib import Path
@@ -10,6 +11,75 @@ import uuid
 
 MAX_BYTES = 25 * 1024 * 1024
 DEMO_END = 1794355200  # 2026-11-11 00:00 UTC; no new demo uploads after judging.
+
+
+def commerce_state(event, table):
+    """Private, app-scoped CAS records; shares existing demo storage, not public uploads."""
+    headers = {k.lower(): v for k, v in event.get("headers", {}).items()}
+    app, stamp = headers.get("x-state-app", ""), headers.get("x-state-time", "")
+    secret = json.loads(os.environ.get("COMMERCE_STATE_SECRETS", "{}")).get(app)
+    raw = event.get("body") or "{}"
+    if event.get("isBase64Encoded"):
+        raw = base64.b64decode(raw).decode()
+    if not secret or not stamp.isdigit() or abs(time.time() - int(stamp)) > 60:
+        return response(401, {"error": "Unauthorized"})
+    expected = hmac.new(secret.encode(), f"{stamp}\n{raw}".encode(), hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, headers.get("x-state-signature", "")):
+        return response(401, {"error": "Unauthorized"})
+    if len(raw.encode()) > 220000:
+        return response(413, {"error": "Record too large"})
+    data = json.loads(raw)
+    key = data.get("key", "")
+    if not isinstance(key, str) or not re.fullmatch(r"[A-Za-z0-9:_-]{1,180}", key):
+        return response(400, {"error": "Invalid key"})
+    pk = {"job_id": f"commerce:{app}:{key}"}
+    row = table.get_item(Key=pk, ConsistentRead=True).get("Item")
+    if data.get("action") == "get":
+        return response(200, {"version": int(row["version"]) if row else 0,
+            "value": json.loads(row["value"]) if row else None})
+    if data.get("action") == "cas" and type(data.get("version")) is int:
+        version = data["version"]
+        item = {**pk, "version": version + 1, "value": json.dumps(data.get("value"))}
+        # Financial completion tombstones deliberately do not expire. Old receipts
+        # cannot reset completion after a TTL, redeployment, or cold start.
+        try:
+            kwargs = {"Item": item, "ConditionExpression": "attribute_not_exists(job_id)"}
+            if version:
+                kwargs.update(ConditionExpression="version = :v", ExpressionAttributeValues={":v": version})
+            table.put_item(**kwargs)
+        except Exception as exc:
+            if getattr(exc, "response", {}).get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+                return response(409, {"error": "State changed"})
+            raise
+        return response(200, {"version": version + 1, "value": data.get("value")})
+    if data.get("action") == "quota" and app == "youcam":
+        ip = data.get("ip", "")
+        kind = data.get("kind", "tryon")
+        if not re.fullmatch(r"[a-f0-9]{64}", ip) or kind not in {"tryon", "listing"}:
+            return response(400, {"error": "Invalid quota request"})
+        day = time.strftime("%Y-%m-%d", time.gmtime(time.time()))
+        pk = {"job_id": f"commerce:youcam:quota:{kind}:{day}"}
+        per_ip, maximum = (3, 40) if kind == "tryon" else (6, 80)
+        for _ in range(12):
+            row = table.get_item(Key=pk, ConsistentRead=True).get("Item", {})
+            counts = json.loads(row.get("value", "{}"))
+            total = sum(counts.values())
+            if total >= maximum or counts.get(ip, 0) >= per_ip:
+                return response(429, {"error": "Demo quota reached. Explore the recorded example and try again tomorrow (UTC).", "example": "/?example=1"})
+            counts[ip] = counts.get(ip, 0) + 1
+            version = int(row.get("version", 0))
+            try:
+                kwargs = {"Item": {**pk, "version": version + 1, "value": json.dumps(counts),
+                    "expires_at": int(time.time()) + 3 * 86400}, "ConditionExpression": "attribute_not_exists(job_id)"}
+                if version:
+                    kwargs.update(ConditionExpression="version = :v", ExpressionAttributeValues={":v": version})
+                table.put_item(**kwargs)
+                return response(200, {"remaining": min(per_ip - counts[ip], maximum - total - 1)})
+            except Exception as exc:
+                if getattr(exc, "response", {}).get("Error", {}).get("Code") != "ConditionalCheckFailedException":
+                    raise
+        return response(503, {"error": "Demo is busy. Try again shortly."})
+    return response(400, {"error": "Invalid action"})
 
 
 def _clients():
@@ -38,6 +108,8 @@ def handler(event, context):
             mime = {"index.html": "text/html; charset=utf-8", "app.js": "text/javascript", "style.css": "text/css"}[name]
             return response(200, (Path(__file__).parent / "web" / name).read_text(), mime)
         s3, table = _clients()
+        if path == "/internal/commerce-state" and method == "POST":
+            return commerce_state(event, table)
         if method == "GET" and path == "/api/health":
             return response(200, {"mode": "aws-live", "max_upload_bytes": MAX_BYTES,
                 "upload_limit": 200, "uploads_close_at": DEMO_END})

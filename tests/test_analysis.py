@@ -109,3 +109,26 @@ def test_demo_is_twelve_seconds(tmp_path):
         assert manifest["duration"] == 12
     finally:
         cap.release()
+
+
+def test_severe_blur_does_not_offer_a_freeze_trim(tmp_path):
+    from shorts_qc.synthetic import _write_video, WIDTH, HEIGHT
+    frame = _frame("blur", 83, 0, 24)
+    video = tmp_path/"soft-hold.mp4"
+    _write_video(video, [frame]*24, WIDTH, HEIGHT)
+    report = analyze(video, tmp_path/"report")
+    assert "blur" in report["summary"]["types"]
+    assert "frozen" not in report["summary"]["types"]
+    assert not any(p["type"] == "frozen" for p in report["fix_plan"])
+
+
+def test_sharp_freeze_remains_a_reviewable_finding(tmp_path):
+    from shorts_qc.synthetic import _write_video, WIDTH, HEIGHT
+    frame = _frame("clean", 83, 0, 24)
+    video = tmp_path/"sharp-hold.mp4"
+    _write_video(video, [frame]*24, WIDTH, HEIGHT)
+    report = analyze(video, tmp_path/"report")
+    frozen = [i for i in report["issues"] if i["type"] == "frozen"]
+    # GOP boundaries can briefly change an otherwise identical encoded frame.
+    assert frozen and all(i["severity"] == "review" for i in frozen)
+    assert sum(i["frames"] for i in frozen) >= 20

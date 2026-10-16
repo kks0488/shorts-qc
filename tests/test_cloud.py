@@ -279,3 +279,53 @@ def test_public_api_presigns_regional_s3_without_preflight_redirect(monkeypatch)
     s3, _ = api._clients()
     url = s3.generate_presigned_url("put_object", Params={"Bucket": "test-bucket", "Key": "clip.mp4"})
     assert urlparse(url).hostname == "test-bucket.s3.ap-southeast-2.amazonaws.com"
+
+
+class StateTable(ApiTable):
+    def put_item(self, Item, **kwargs):
+        previous = self.rows.get(Item["job_id"])
+        expected = kwargs.get("ExpressionAttributeValues", {}).get(":v")
+        if (expected is None and previous) or (expected is not None and (not previous or previous["version"] != expected)):
+            raise ConditionalFailure()
+        self.rows[Item["job_id"]] = dict(Item)
+
+
+def signed_state(monkeypatch, table, data, app="paypal", signature=True):
+    import hmac
+    import hashlib
+    monkeypatch.setenv("COMMERCE_STATE_SECRETS", json.dumps({"paypal": "test-private", "youcam": "test-other"}))
+    raw = json.dumps(data)
+    stamp = str(int(api.time.time()))
+    secret = "test-private" if app == "paypal" else "test-other"
+    sig = hmac.new(secret.encode(), f"{stamp}\n{raw}".encode(), hashlib.sha256).hexdigest()
+    return api.commerce_state({"body": raw, "headers": {"x-state-app": app, "x-state-time": stamp,
+        "x-state-signature": sig if signature else "invalid"}}, table)
+
+
+def test_private_state_requires_signature_and_is_scoped(monkeypatch):
+    table = StateTable()
+    request = {"action": "cas", "key": "capture:one", "version": 0, "value": {"status": "delivered"}}
+    assert signed_state(monkeypatch, table, request, signature=False)["statusCode"] == 401
+    assert not table.rows
+    assert signed_state(monkeypatch, table, request)["statusCode"] == 200
+    assert signed_state(monkeypatch, table, request)["statusCode"] == 409
+    read = {"action": "get", "key": "capture:one"}
+    assert json.loads(signed_state(monkeypatch, table, read)["body"])["value"]["status"] == "delivered"
+    assert json.loads(signed_state(monkeypatch, table, read, app="youcam")["body"])["value"] is None
+    assert all("expires_at" not in row for row in table.rows.values())
+
+
+def test_quota_limits_ip_and_global_and_resets_next_day(monkeypatch):
+    table = StateTable()
+    monkeypatch.setattr(api.time, "time", lambda: 1792137600)
+    request = {"action": "quota", "key": "daily", "kind": "tryon", "ip": "a" * 64}
+    for _ in range(3):
+        assert signed_state(monkeypatch, table, request, app="youcam")["statusCode"] == 200
+    assert signed_state(monkeypatch, table, request, app="youcam")["statusCode"] == 429
+    for i in range(37):
+        request["ip"] = f"{i:064x}"
+        assert signed_state(monkeypatch, table, request, app="youcam")["statusCode"] == 200
+    request["ip"] = "f" * 64
+    assert signed_state(monkeypatch, table, request, app="youcam")["statusCode"] == 429
+    monkeypatch.setattr(api.time, "time", lambda: 1792224000)
+    assert signed_state(monkeypatch, table, request, app="youcam")["statusCode"] == 200

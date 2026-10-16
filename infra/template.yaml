@@ -8,6 +8,10 @@ Parameters:
     Type: String
   ApiZipKey:
     Type: String
+  CommerceStateSecrets:
+    Type: String
+    Default: '{}'
+    NoEcho: true
 
 Resources:
   UploadBucket:
@@ -180,6 +184,7 @@ Resources:
           UPLOAD_BUCKET: !Ref UploadBucket
           REPORT_BUCKET: !Ref ReportBucket
           JOBS_TABLE: !Ref Jobs
+          COMMERCE_STATE_SECRETS: !Ref CommerceStateSecrets
       Policies:
         - Statement:
             - Effect: Allow
