@@ -1,6 +1,13 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Shorts QC bounded OpenCV 5 analysis and private S3 origin viewer
+Description: Shorts QC live HTTPS upload and OpenCV 5 analysis within Free plan credits
+Parameters:
+  ImageUri:
+    Type: String
+  ArtifactBucket:
+    Type: String
+  ApiZipKey:
+    Type: String
 
 Resources:
   UploadBucket:
@@ -14,6 +21,13 @@ Resources:
         BlockPublicPolicy: true
         IgnorePublicAcls: true
         RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedMethods: [PUT, GET, HEAD]
+            AllowedOrigins: ['*']
+            AllowedHeaders: ['*']
+            ExposedHeaders: [ETag, x-amz-request-id]
+            MaxAge: 300
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
@@ -74,24 +88,21 @@ Resources:
       RetentionInDays: 14
   Analyze:
     Type: AWS::Serverless::Function
-    Metadata:
-      Dockerfile: infra/Dockerfile
-      DockerContext: ..
-      DockerTag: shorts-qc-opencv5
     Properties:
       FunctionName: !Sub '${AWS::StackName}-analyze'
       PackageType: Image
+      ImageUri: !Ref ImageUri
       Architectures: [x86_64]
-      MemorySize: 3072
-      Timeout: 540
-      ReservedConcurrentExecutions: 2
-      EphemeralStorage: {Size: 2048}
+      MemorySize: 2048
+      Timeout: 180
+      ReservedConcurrentExecutions: 1
+      EphemeralStorage: {Size: 1024}
       Environment:
         Variables:
           UPLOAD_BUCKET: !Sub '${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-uploads'
           REPORT_BUCKET: !Ref ReportBucket
           JOBS_TABLE: !Ref Jobs
-          MAX_UPLOAD_BYTES: '104857600'
+          MAX_UPLOAD_BYTES: '26214400'
       EventInvokeConfig:
         MaximumEventAgeInSeconds: 3600
         MaximumRetryAttempts: 2
@@ -145,62 +156,74 @@ Resources:
       Threshold: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
       TreatMissingData: notBreaching
-  ViewerAccess:
-    Type: AWS::CloudFront::OriginAccessControl
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
     Properties:
-      OriginAccessControlConfig:
-        Name: !Sub '${AWS::StackName}-${AWS::Region}-viewer'
-        OriginAccessControlOriginType: s3
-        SigningBehavior: always
-        SigningProtocol: sigv4
-  Viewer:
-    Type: AWS::CloudFront::Distribution
+      LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-api'
+      RetentionInDays: 14
+  Api:
+    Type: AWS::Serverless::Function
     Properties:
-      DistributionConfig:
-        Enabled: true
-        Comment: Shorts QC viewer and shareable analysis reports
-        DefaultRootObject: viewer/index.html
-        HttpVersion: http2
-        PriceClass: PriceClass_100
-        Origins:
-          - Id: Reports
-            DomainName: !GetAtt ReportBucket.RegionalDomainName
-            OriginAccessControlId: !Ref ViewerAccess
-            S3OriginConfig: {OriginAccessIdentity: ''}
-        DefaultCacheBehavior:
-          TargetOriginId: Reports
-          ViewerProtocolPolicy: redirect-to-https
-          AllowedMethods: [GET, HEAD]
-          CachedMethods: [GET, HEAD]
-          Compress: true
-          # AWS-managed CachingDisabled policy keeps uploaded report revisions fresh.
-          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
-        ViewerCertificate: {CloudFrontDefaultCertificate: true}
-  ReportBucketPolicy:
-    Type: AWS::S3::BucketPolicy
+      FunctionName: !Sub '${AWS::StackName}-api'
+      Runtime: python3.12
+      Handler: api.handler
+      CodeUri:
+        Bucket: !Ref ArtifactBucket
+        Key: !Ref ApiZipKey
+      MemorySize: 256
+      Timeout: 10
+      ReservedConcurrentExecutions: 4
+      FunctionUrlConfig:
+        AuthType: NONE
+      Environment:
+        Variables:
+          UPLOAD_BUCKET: !Ref UploadBucket
+          REPORT_BUCKET: !Ref ReportBucket
+          JOBS_TABLE: !Ref Jobs
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: ['s3:GetObject', 's3:PutObject']
+              Resource: !Sub '${UploadBucket.Arn}/incoming/*'
+            - Effect: Allow
+              Action: ['s3:GetObject']
+              Resource:
+                - !Sub '${UploadBucket.Arn}/demo/*'
+                - !Sub '${ReportBucket.Arn}/reports/*'
+                - !Sub '${ReportBucket.Arn}/demo/*'
+            - Effect: Allow
+              Action: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem']
+              Resource: !GetAtt Jobs.Arn
+  DemoBudget:
+    Type: AWS::Budgets::Budget
     Properties:
-      Bucket: !Ref ReportBucket
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Principal: {Service: cloudfront.amazonaws.com}
-            Action: s3:GetObject
-            Resource:
-              - !Sub '${ReportBucket.Arn}/viewer/*'
-              - !Sub '${ReportBucket.Arn}/reports/*'
-            Condition:
-              StringEquals:
-                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${Viewer}'
-          - Effect: Deny
-            Principal: '*'
-            Action: 's3:*'
-            Resource: [!GetAtt ReportBucket.Arn, !Sub '${ReportBucket.Arn}/*']
-            Condition: {Bool: {'aws:SecureTransport': 'false'}}
+      Budget:
+        BudgetName: !Sub '${AWS::StackName}-monthly-5-usd'
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit: {Amount: 5, Unit: USD}
+        CostTypes:
+          IncludeCredit: false
+          IncludeRefund: false
+  ApiTrafficAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Public demo traffic above expected judging use; inspect budget and set API concurrency to zero if needed.
+      Namespace: AWS/Lambda
+      MetricName: Invocations
+      Dimensions: [{Name: FunctionName, Value: !Ref Api}]
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1000
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
 Outputs:
   UploadBucket: {Value: !Ref UploadBucket}
   ReportBucket: {Value: !Ref ReportBucket}
   JobsTable: {Value: !Ref Jobs}
   AnalyzeFunction: {Value: !Ref Analyze}
-  ViewerURL: {Value: !Sub 'https://${Viewer.DomainName}/viewer/index.html'}
+  ApiFunction: {Value: !Ref Api}
+  ViewerURL: {Value: !GetAtt ApiUrl.FunctionUrl}
+  UploadEndpoint: {Value: !Sub '${ApiUrl.FunctionUrl}api/uploads'}
   Logs: {Value: !Ref AnalyzeLogGroup}

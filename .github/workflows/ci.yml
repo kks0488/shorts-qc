@@ -20,6 +20,7 @@ jobs:
         env:
           SHORTS_QC_TEXT_MODEL: models/text.onnx
       - run: bash -n infra/deploy.sh
+      - run: pip install cfn-lint==1.57.2 && cfn-lint infra/template.yaml
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

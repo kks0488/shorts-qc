@@ -1,0 +1,492 @@
+{
+  "captured_at": "2026-10-16T07:12:32.972122+00:00",
+  "region": "ap-southeast-2",
+  "endpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws",
+  "stack_status": "UPDATE_COMPLETE",
+  "outputs": {
+    "UploadEndpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/api/uploads",
+    "UploadBucket": "shorts-qc-381183038133-ap-southeast-2-uploads",
+    "ReportBucket": "shorts-qc-reportbucket-b8qjap07vgrm",
+    "Logs": "/aws/lambda/shorts-qc-analyze",
+    "ApiFunction": "shorts-qc-api",
+    "ViewerURL": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/",
+    "JobsTable": "shorts-qc-Jobs-11REP610MY09F",
+    "AnalyzeFunction": "shorts-qc-analyze"
+  },
+  "runs": [
+    {
+      "clip": "demo.mp4",
+      "upload_id": "02edb9b58cb14a54967436398ccc3a19",
+      "job_id": "abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61",
+      "request_id": "7fd18287-35df-49f9-8a97-de110bae6077",
+      "upload_to_report_seconds": 47.094,
+      "analysis_seconds": 12.8988,
+      "frames": 144,
+      "opencv": "5.0.0",
+      "caption_detection": "active",
+      "issues": 11,
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61/report.json",
+      "viewer_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/?report=/reports/abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61/report.json",
+      "replay_http_status": 412
+    },
+    {
+      "clip": "shorts-qc-repaired.mp4",
+      "upload_id": "1e2d7e01be9c403eaee69752c7b3064b",
+      "job_id": "aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee",
+      "request_id": "daa94ed6-b5b5-4e6b-a990-73c98c082824",
+      "upload_to_report_seconds": 12.449,
+      "analysis_seconds": 6.7129,
+      "frames": 120,
+      "opencv": "5.0.0",
+      "caption_detection": "active",
+      "issues": 6,
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee/report.json",
+      "viewer_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/?report=/reports/aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee/report.json",
+      "replay_http_status": 412
+    }
+  ],
+  "resources": [
+    {
+      "LogicalResourceId": "AnalysisErrors",
+      "PhysicalResourceId": "shorts-qc-AnalysisErrors-ItiB0Sc3PNE6",
+      "ResourceType": "AWS::CloudWatch::Alarm",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:00.887000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "Analyze",
+      "PhysicalResourceId": "shorts-qc-analyze",
+      "ResourceType": "AWS::Lambda::Function",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:06.554000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "AnalyzeEventInvokeConfig",
+      "PhysicalResourceId": "shorts-qc-analyze|$LATEST",
+      "ResourceType": "AWS::Lambda::EventInvokeConfig",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:00.042000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "AnalyzeLogGroup",
+      "PhysicalResourceId": "/aws/lambda/shorts-qc-analyze",
+      "ResourceType": "AWS::Logs::LogGroup",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:21.338000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "AnalyzeRole",
+      "PhysicalResourceId": "shorts-qc-AnalyzeRole-aMvxqDBv4hGt",
+      "ResourceType": "AWS::IAM::Role",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:46.687000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "AnalyzeUploadedPermission",
+      "PhysicalResourceId": "shorts-qc-AnalyzeUploadedPermission-PN6rA2X57aXo",
+      "ResourceType": "AWS::Lambda::Permission",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:59.520000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "Api",
+      "PhysicalResourceId": "shorts-qc-api",
+      "ResourceType": "AWS::Lambda::Function",
+      "LastUpdatedTimestamp": "2026-10-16T07:17:00.935000+00:00",
+      "ResourceStatus": "UPDATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiLogGroup",
+      "PhysicalResourceId": "/aws/lambda/shorts-qc-api",
+      "ResourceType": "AWS::Logs::LogGroup",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:21.349000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiRole",
+      "PhysicalResourceId": "shorts-qc-ApiRole-50ZGcrHGHvNN",
+      "ResourceType": "AWS::IAM::Role",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:42.702000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiTrafficAlarm",
+      "PhysicalResourceId": "shorts-qc-ApiTrafficAlarm-RSQo8P3HYSwH",
+      "ResourceType": "AWS::CloudWatch::Alarm",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:55.892000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiURLInvokeAllowPublicAccess",
+      "PhysicalResourceId": "shorts-qc-ApiURLInvokeAllowPublicAccess-buH9qBmvDUaM",
+      "ResourceType": "AWS::Lambda::Permission",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:54.446000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiUrl",
+      "PhysicalResourceId": "arn:aws:lambda:ap-southeast-2:381183038133:function:shorts-qc-api",
+      "ResourceType": "AWS::Lambda::Url",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:54.910000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ApiUrlPublicPermissions",
+      "PhysicalResourceId": "shorts-qc-ApiUrlPublicPermissions-Iow3ouoAYZVp",
+      "ResourceType": "AWS::Lambda::Permission",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:54.337000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "DemoBudget",
+      "PhysicalResourceId": "shorts-qc-monthly-5-usd",
+      "ResourceType": "AWS::Budgets::Budget",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:13.319000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "Jobs",
+      "PhysicalResourceId": "shorts-qc-Jobs-11REP610MY09F",
+      "ResourceType": "AWS::DynamoDB::Table",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:25.576000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "ReportBucket",
+      "PhysicalResourceId": "shorts-qc-reportbucket-b8qjap07vgrm",
+      "ResourceType": "AWS::S3::Bucket",
+      "LastUpdatedTimestamp": "2026-10-16T07:09:26.876000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "UploadBucket",
+      "PhysicalResourceId": "shorts-qc-381183038133-ap-southeast-2-uploads",
+      "ResourceType": "AWS::S3::Bucket",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:23.228000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    },
+    {
+      "LogicalResourceId": "UploadBucketPolicy",
+      "PhysicalResourceId": "shorts-qc-381183038133-ap-southeast-2-uploads",
+      "ResourceType": "AWS::S3::BucketPolicy",
+      "LastUpdatedTimestamp": "2026-10-16T07:10:25.621000+00:00",
+      "ResourceStatus": "CREATE_COMPLETE",
+      "DriftInformation": {
+        "StackResourceDriftStatus": "NOT_CHECKED"
+      }
+    }
+  ],
+  "free_plan": {
+    "accountId": "381183038133",
+    "accountPlanType": "FREE",
+    "accountPlanStatus": "ACTIVE",
+    "accountPlanRemainingCredits": {
+      "amount": 140.0,
+      "unit": "USD"
+    },
+    "accountPlanExpirationDate": "2027-04-16T06:22:20.583000+00:00"
+  },
+  "lambda_configuration": [
+    {
+      "FunctionName": "shorts-qc-api",
+      "MemorySize": 256,
+      "Timeout": 10,
+      "LastModified": "2026-10-16T07:16:54.000+0000",
+      "State": "Active",
+      "PackageType": "Zip",
+      "ReservedConcurrentExecutions": 4
+    },
+    {
+      "FunctionName": "shorts-qc-analyze",
+      "MemorySize": 2048,
+      "Timeout": 180,
+      "LastModified": "2026-10-16T07:09:50.539+0000",
+      "State": "Active",
+      "PackageType": "Image",
+      "ReservedConcurrentExecutions": 1
+    }
+  ],
+  "cloudwatch_logs": [
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134760958,
+      "message": "START RequestId: 7fd18287-35df-49f9-8a97-de110bae6077 Version: $LATEST\n",
+      "ingestionTime": 1792134769735,
+      "eventId": "39965940665553944558765455462933505965205002806065037312"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134763297,
+      "message": "{\"job_id\": \"abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61\", \"status\": \"processing\"}\n",
+      "ingestionTime": 1792134769735,
+      "eventId": "39965940717715387578128582990985551004929520368553230337"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134798068,
+      "message": "{\"_aws\": {\"Timestamp\": 1792134798068, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"Completed\", \"Unit\": \"Count\"}]}]}, \"Completed\": 1}\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941493134598876236880290477461416787550773511651328"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134798068,
+      "message": "{\"_aws\": {\"Timestamp\": 1792134798068, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"AnalysisSeconds\", \"Unit\": \"Seconds\"}]}]}, \"AnalysisSeconds\": 34.771337032}\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941493134598876236880290477461416787550773511651329"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134798068,
+      "message": "{\"job_id\": \"abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61\", \"status\": \"complete\", \"report_key\": \"reports/abf11e67d566ea0b0c4d1cf15bfd8bb6cf15b62a25644d80eb2027c891b51c61/report.json\", \"request_id\": \"7fd18287-35df-49f9-8a97-de110bae6077\", \"elapsed_seconds\": 34.771}\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941493134598876236880290477461416787550773511651330"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134798073,
+      "message": "END RequestId: 7fd18287-35df-49f9-8a97-de110bae6077\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941493246102602229533406185140008150792581041553411"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134798073,
+      "message": "REPORT RequestId: 7fd18287-35df-49f9-8a97-de110bae6077\tDuration: 37114.28 ms\tBilled Duration: 37550 ms\tMemory Size: 2048 MB\tMax Memory Used: 296 MB\tInit Duration: 435.65 ms\t\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941493246102602229533406185140008150792581041553412"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134805357,
+      "message": "START RequestId: daa94ed6-b5b5-4e6b-a990-73c98c082824 Version: $LATEST\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941655684730628326592369131311906121457790602903557"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134805422,
+      "message": "{\"job_id\": \"aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee\", \"status\": \"processing\"}\n",
+      "ingestionTime": 1792134807085,
+      "eventId": "39965941657134279066231082873331133593843601288491630598"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134812404,
+      "message": "{\"_aws\": {\"Timestamp\": 1792134812404, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"Completed\", \"Unit\": \"Count\"}]}]}, \"Completed\": 1}\n",
+      "ingestionTime": 1792134821420,
+      "eventId": "39965941812838082042371893664863716068729811408045801472"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134812404,
+      "message": "{\"_aws\": {\"Timestamp\": 1792134812404, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"AnalysisSeconds\", \"Unit\": \"Seconds\"}]}]}, \"AnalysisSeconds\": 6.982734497999999}\n",
+      "ingestionTime": 1792134821420,
+      "eventId": "39965941812838082042371893664863716068729811408045801473"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134812404,
+      "message": "{\"job_id\": \"aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee\", \"status\": \"complete\", \"report_key\": \"reports/aeeb012661d1ebb4f5c9e27baf23bb30720786d5243228ce2bfb80a4634f5fee/report.json\", \"request_id\": \"daa94ed6-b5b5-4e6b-a990-73c98c082824\", \"elapsed_seconds\": 6.983}\n",
+      "ingestionTime": 1792134821420,
+      "eventId": "39965941812838082042371893664863716068729811408045801474"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134812409,
+      "message": "END RequestId: daa94ed6-b5b5-4e6b-a990-73c98c082824\n",
+      "ingestionTime": 1792134821420,
+      "eventId": "39965941812949585768364546780571394660093053215575703555"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792134812409,
+      "message": "REPORT RequestId: daa94ed6-b5b5-4e6b-a990-73c98c082824\tDuration: 7051.61 ms\tBilled Duration: 7052 ms\tMemory Size: 2048 MB\tMax Memory Used: 304 MB\t\n",
+      "ingestionTime": 1792134821420,
+      "eventId": "39965941812949585768364546780571394660093053215575703556"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135091660,
+      "message": "START RequestId: 11a1a5eb-f142-4879-b374-b9fb4e9acb7f Version: $LATEST\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948040454983203239590015167644316324525965784449024"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135091733,
+      "message": "{\"job_id\": \"f063236b97da252dec7bdc3da9b79ccbe57cf3508dd228fb81b3e87f374e4f43\", \"status\": \"processing\"}\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948042082937602732325504499751750227856355721019393"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135099999,
+      "message": "{\"_aws\": {\"Timestamp\": 1792135099999, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"Completed\", \"Unit\": \"Count\"}]}]}, \"Completed\": 1}\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948226420897413786456392433998991939212564155138050"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135099999,
+      "message": "{\"_aws\": {\"Timestamp\": 1792135099999, \"CloudWatchMetrics\": [{\"Namespace\": \"ShortsQC\", \"Dimensions\": [[]], \"Metrics\": [{\"Name\": \"AnalysisSeconds\", \"Unit\": \"Seconds\"}]}]}, \"AnalysisSeconds\": 8.26657335799996}\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948226420897413786456392433998991939212564155138051"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135099999,
+      "message": "{\"job_id\": \"f063236b97da252dec7bdc3da9b79ccbe57cf3508dd228fb81b3e87f374e4f43\", \"status\": \"complete\", \"report_key\": \"reports/f063236b97da252dec7bdc3da9b79ccbe57cf3508dd228fb81b3e87f374e4f43/report.json\", \"request_id\": \"11a1a5eb-f142-4879-b374-b9fb4e9acb7f\", \"elapsed_seconds\": 8.267}\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948226420897413786456392433998991939212564155138052"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135100004,
+      "message": "END RequestId: 11a1a5eb-f142-4879-b374-b9fb4e9acb7f\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948226532401139779109508141677583302454371685040133"
+    },
+    {
+      "logStreamName": "2026/10/16/[$LATEST]4cac92f785ad48f182c694d2c290f0ac",
+      "timestamp": 1792135100004,
+      "message": "REPORT RequestId: 11a1a5eb-f142-4879-b374-b9fb4e9acb7f\tDuration: 8343.62 ms\tBilled Duration: 8344 ms\tMemory Size: 2048 MB\tMax Memory Used: 305 MB\t\n",
+      "ingestionTime": 1792135100681,
+      "eventId": "39965948226532401139779109508141677583302454371685040134"
+    }
+  ],
+  "cloudwatch_metrics": {
+    "MetricDataResults": [
+      {
+        "Id": "duration",
+        "Label": "Duration",
+        "Timestamps": [
+          "2026-10-16T16:18:00+09:00",
+          "2026-10-16T16:13:00+09:00",
+          "2026-10-16T16:12:00+09:00"
+        ],
+        "Values": [
+          8343.62,
+          7051.61,
+          37549.93
+        ],
+        "StatusCode": "Complete"
+      },
+      {
+        "Id": "invocations",
+        "Label": "Invocations",
+        "Timestamps": [
+          "2026-10-16T16:18:00+09:00",
+          "2026-10-16T16:13:00+09:00",
+          "2026-10-16T16:12:00+09:00"
+        ],
+        "Values": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "StatusCode": "Complete"
+      },
+      {
+        "Id": "errors",
+        "Label": "Errors",
+        "Timestamps": [
+          "2026-10-16T16:18:00+09:00",
+          "2026-10-16T16:13:00+09:00",
+          "2026-10-16T16:12:00+09:00"
+        ],
+        "Values": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "StatusCode": "Complete"
+      }
+    ],
+    "Messages": []
+  },
+  "refreshed_at": "2026-10-16T07:21:30.555766+00:00",
+  "browser_verification": {
+    "script": "scripts/capture-aws.mjs",
+    "result": "PASS",
+    "job_id": "f063236b97da252dec7bdc3da9b79ccbe57cf3508dd228fb81b3e87f374e4f43",
+    "request_id": "11a1a5eb-f142-4879-b374-b9fb4e9acb7f",
+    "worker_elapsed_seconds": 8.267,
+    "checks": [
+      "public HTTPS viewer",
+      "checksummed browser upload and S3 CORS",
+      "real OpenCV + DB inference",
+      "polling",
+      "share URL",
+      "private local video blob preview",
+      "video decode/seek and HTTP 206",
+      "JSON/CSV/contact-sheet downloads",
+      "finding filters",
+      "390px mobile overflow"
+    ],
+    "screenshots": [
+      "media/aws-viewer.png",
+      "media/aws-upload-complete.png",
+      "media/aws-evidence.png",
+      "media/aws-metrics.png"
+    ],
+    "screenshot_dimensions": [
+      1920,
+      1080
+    ],
+    "analysis_seconds": 7.9693,
+    "frames": 144,
+    "issues": 11
+  }
+}

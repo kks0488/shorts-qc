@@ -111,7 +111,9 @@ def handler(event, context):
                 prefix = f"reports/{job}"
                 report["mode"] = "aws-analysis"
                 report["cloud_status"] = "deployed"
-                report["cloud"] = {"job_id": job, "mode": "aws", "report_key": f"{prefix}/report.json"}
+                report["cloud"] = {"job_id": job, "mode": "aws", "report_key": f"{prefix}/report.json",
+                    "request_id": getattr(context, "aws_request_id", "local-test")}
+                report["source"]["name"] = Path(key).name
                 (output / "report.json").write_text(json.dumps(report, indent=2))
                 for filename, mime in (("metrics.csv", "text/csv"), ("contact-sheet.jpg", "image/jpeg"), ("report.json", "application/json")):
                     s3.upload_file(str(output / filename), os.environ["REPORT_BUCKET"], f"{prefix}/{filename}",
@@ -121,7 +123,9 @@ def handler(event, context):
                 ExpressionAttributeValues={":s": "COMPLETE", ":r": f"{prefix}/report.json", ":t": int(time.time())})
             _metric("Completed", 1)
             _metric("AnalysisSeconds", time.monotonic() - started, "Seconds")
-            print(json.dumps({"job_id": job, "status": "complete", "report_key": f"{prefix}/report.json"}))
+            print(json.dumps({"job_id": job, "status": "complete", "report_key": f"{prefix}/report.json",
+                "request_id": getattr(context, "aws_request_id", "local-test"),
+                "elapsed_seconds": round(time.monotonic() - started, 3)}))
             results.append({"job_id": job, "status": "complete", "report_key": f"{prefix}/report.json"})
         except Exception as error:
             # Persist retryable status; Lambda's bounded asynchronous retries handle transient errors.
@@ -130,5 +134,8 @@ def handler(event, context):
                 ExpressionAttributeValues={":s": "FAILED", ":l": 0, ":e": type(error).__name__})
             _metric("Failed", 1)
             print(json.dumps({"job_id": job, "status": "failed", "error_type": type(error).__name__}))
+            if isinstance(error, ValueError):
+                results.append({"job_id": job, "status": "failed", "error_type": "ValueError"})
+                continue
             raise
     return {"jobs": results}

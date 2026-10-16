@@ -1,6 +1,7 @@
 /* Original dependency-free viewer. Report data is always inserted as text. */
 'use strict';
 const $ = id => document.getElementById(id);
+async function readURL(url){for(let attempt=0;attempt<5;attempt++){const r=await fetch(url);if(![429,503].includes(r.status)||attempt===4)return r;await new Promise(resolve=>setTimeout(resolve,250*2**attempt));}}
 const names = {blur:'Blur / focus',black:'Black frames',dark:'Low exposure',frozen:'Frozen frames',flicker:'Exposure flicker',scene_cut:'Abrupt cut',caption_safe_zone:'Caption safe zone',caption_clipped:'Caption edge risk',letterbox:'Letterbox',aspect_ratio:'Aspect ratio'};
 let current, reportURL, videoObjectURL;
 const seconds = n => `${Math.floor(n/60)}:${(n%60).toFixed(2).padStart(5,'0')}`;
@@ -15,9 +16,44 @@ function link(id,name){const href=artifactURL(name);if(href)$(id).href=href;else
 function render(report,url){validate(report);current=report;reportURL=url;$('error').hidden=true;$('engine').textContent=`OpenCV ${report.engine.version}`;$('filename').textContent=report.source.name;$('source').textContent=`${report.source.width} × ${report.source.height}  ·  ${report.source.fps.toFixed(1)} fps  ·  ${report.source.duration.toFixed(2)} seconds  ·  SHA-256 ${report.source.sha256.slice(0,12)}`;$('status').textContent=report.summary.status==='clear'?'Clear candidate':'Needs review';$('issue-count').textContent=report.issues.length;$('types').textContent=`${report.summary.types.length} issue types detected`;$('frames').textContent=report.source.frames.toLocaleString();$('runtime').textContent=`${report.analysis_seconds.toFixed(2)}s analysis · every frame inspected`;$('safe-status').textContent=report.caption_detection.status==='active'?(report.issues.some(i=>i.type.startsWith('caption'))?'Needs attention':'Clear candidate'):'Not checked';$('caption-status').textContent=report.caption_detection.status==='active'?'DNN CAPTIONS ACTIVE':'CAPTION CHECKS NOT RUN';$('cloud').textContent=report.cloud_status==='deployed'?'AWS: processed':'AWS: not deployed';$('duration').textContent=`${report.source.duration.toFixed(2)}s / FULL CLIP`;$('middle').textContent=seconds(report.source.duration/2);$('end').textContent=seconds(report.source.duration);
 const c=report.config;Object.assign($('safe-guide').style,{left:`${c.safe_left*100}%`,top:`${c.safe_top*100}%`,width:`${(c.safe_right-c.safe_left)*100}%`,height:`${(c.safe_bottom-c.safe_top)*100}%`});
 const timeline=$('timeline');timeline.replaceChildren();const types=[...new Set(report.issues.map(i=>i.type))];for(const kind of types){const track=node('div','track');track.append(node('span','track-label',names[kind]||kind));for(const issue of report.issues.filter(i=>i.type===kind)){const b=node('button',`segment ${issue.severity}`);b.title=`${names[kind]}: ${seconds(issue.start)} – ${seconds(issue.end)}`;b.setAttribute('aria-label',b.title);b.style.left=`${Math.max(0,issue.start/report.source.duration*100)}%`;b.style.width=`${Math.max(.3,Math.min(100,((issue.end-issue.start)/report.source.duration)*100))}%`;b.onclick=()=>seek(issue);track.append(b);}timeline.append(track);}if(!types.length)timeline.append(node('p','helper','No flagged intervals.'));renderFindings();
-const limits=$('limits');limits.replaceChildren();for(const item of report.limitations)limits.append(node('li','',item));link('json-link',url?new URL(url).pathname:'report.json');link('csv-link',report.artifacts.metrics);link('sheet-link',report.artifacts.contact_sheet);const sheet=artifactURL(report.artifacts.contact_sheet);$('sheet').hidden=!sheet;if(sheet)$('sheet').src=sheet;const video=artifactURL(report.source.name);if(video)$('video').src=video;else{$('video').removeAttribute('src');$('video').load();}
+const limits=$('limits');limits.replaceChildren();for(const item of report.limitations)limits.append(node('li','',item));link('json-link',url?new URL(url).pathname:'report.json');link('csv-link',report.artifacts.metrics);link('sheet-link',report.artifacts.contact_sheet);const sheet=artifactURL(report.artifacts.contact_sheet);$('sheet').hidden=!sheet;if(sheet)$('sheet').src=sheet;const video=videoObjectURL || (report.cloud_status==='deployed' ? (reportURL && new URL(reportURL).pathname==='/report.json' ? new URL('/demo.mp4',location.href).href : null) : artifactURL(report.source.name));if(video)$('video').src=video;else{$('video').removeAttribute('src');$('video').load();}
 }
 $('filter').onchange=()=>current&&renderFindings();
 $('file').onchange=async e=>{try{const file=e.target.files[0];if(!file)return;if(file.size>10_000_000)throw Error('Report JSON is too large.');render(JSON.parse(await file.text()),null);}catch(e){error(e.message);}};
 $('video-file').onchange=e=>{if(videoObjectURL)URL.revokeObjectURL(videoObjectURL);const file=e.target.files[0];if(file){videoObjectURL=URL.createObjectURL(file);$('video').src=videoObjectURL;}};
-(async()=>{try{const url=new URL(new URLSearchParams(location.search).get('report')||'report.json',location.href);if(url.origin!==location.origin)throw Error('Report must be on the same origin.');const response=await fetch(url);if(!response.ok)throw Error('No report found. Open report.json to inspect a local analysis.');render(await response.json(),url.href);}catch(e){error(e.message);}})();
+(async()=>{try{const url=new URL(new URLSearchParams(location.search).get('report')||'report.json',location.href);if(url.origin!==location.origin)throw Error('Report must be on the same origin.');const response=await readURL(url);if(!response.ok)throw Error('No report found. Open report.json to inspect a local analysis.');render(await response.json(),url.href);}catch(e){error(e.message);}})();
+
+// Detect the live AWS API without changing offline report behavior.
+(async()=>{try{const r=await readURL('/api/health');if(r.ok&&(await r.json()).mode==='aws-live'){$('aws-upload').hidden=false;document.querySelector('.header-end .badge').textContent='AWS LIVE';}}catch{}})();
+$('upload-video').onchange=async e=>{
+  const file=e.target.files[0];if(!file)return;const input=e.target;input.disabled=true;
+  const status=$('upload-status');
+  try{
+    if(file.size>25*1024*1024)throw Error('Choose a video up to 25 MiB.');
+    status.textContent='Preparing secure upload…';
+    const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());
+    const sha256=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+    const created=await fetch('/api/uploads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({filename:file.name,size:file.size,sha256})});
+    const job=await created.json();if(!created.ok)throw Error(job.error||'Upload unavailable.');
+    status.textContent='Uploading directly to private S3…';
+    const uploaded=await fetch(job.upload_url,{method:'PUT',headers:job.headers,body:file});
+    if(!uploaded.ok)throw Error(`S3 rejected upload (${uploaded.status}).`);
+    if(videoObjectURL)URL.revokeObjectURL(videoObjectURL);videoObjectURL=URL.createObjectURL(file);
+    status.textContent='AWS OpenCV analysis is running…';
+    const deadline=Date.now()+240000;
+    while(Date.now()<deadline){
+      await new Promise(resolve=>setTimeout(resolve,3000));
+      const polled=await readURL(job.status_url);if(!polled.ok)continue;
+      const result=await polled.json();
+      if(result.status==='RETRY_PENDING')status.textContent='AWS is waiting to retry a stopped worker…';
+      if(result.status==='TIMED_OUT')throw Error('AWS retry window ended. Try a shorter video.');
+      if(result.status==='FAILED')throw Error('Analysis failed. Check the video limits or try a supported clip.');
+      if(result.status==='COMPLETE'){
+        const url=new URL(result.report_url,location.href);const report=await readURL(url);if(!report.ok)throw Error('Report unavailable.');
+        render(await report.json(),url.href);history.replaceState(null,'',`?report=${encodeURIComponent(result.report_url)}`);
+        status.textContent='AWS analysis complete. Share this page URL; attach the original video when reopening.';return;
+      }
+    }
+    throw Error(`Analysis is still queued. Keep this status URL: ${job.status_url}`);
+  }catch(e){status.textContent=e.message;error(e.message);}finally{input.disabled=false;input.value='';}
+};

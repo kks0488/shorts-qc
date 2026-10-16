@@ -4,9 +4,9 @@
 
 Small sellers and studios produce shorts faster than they can review every frame. Shorts QC measures visual defects with **OpenCV 5**, produces an inspectable timeline and fix plan, and can apply bounded ffmpeg repairs before running the same checks again. It runs locally without API keys. The AWS delivery path packages the actual analyzer in a Lambda container; it is not a placeholder API.
 
-![Real report viewer capture](media/viewer-desktop.png)
+![Live AWS report viewer](media/aws-viewer.png)
 
-Demo: [interactive viewer files](shorts_qc/web/index.html), [original synthetic demo](media/demo.mp4), [measured report](media/report.json), [screen capture](media/viewer-desktop.png). Launch locally with the commands below. A hosted demo and final narrated video are **not published**. AWS execution is **not yet verified** because the owner has no AWS account/credentials. Local results must not be represented as AWS evidence.
+Demo: **[Live HTTPS viewer and upload](https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/)** · [original synthetic clip](media/demo.mp4) · [AWS execution evidence](media/aws-evidence.json). The hosted app runs real OpenCV 5 and DB caption inference on AWS. The final narrated video is handled separately.
 
 ## Run and test
 
@@ -98,60 +98,103 @@ Measured on pilot with the real DB network active, OpenCV 5.0.0, seed 2026. Froz
 
 <!-- /EVALUATION_RESULTS -->
 
-Failure cases: intentional static product shots resemble freezes; soft backgrounds resemble blur; rapid caption changes between DNN samples can be missed; stylized/small/non-English text is outside this model's reliable scope; exposure effects can resemble flicker; fades may trigger black/dark findings. The demo uses persistent English captions. A production benchmark needs consented, varied, manually annotated footage. No user study, revenue improvement, physical-device validation, real-platform safe-zone certification or AWS latency/cost claim is made.
+Failure cases: intentional static product shots resemble freezes; soft backgrounds resemble blur; rapid caption changes between DNN samples can be missed; stylized/small/non-English text is outside this model's reliable scope; exposure effects can resemble flicker; fades may trigger black/dark findings. The demo uses persistent English captions. A production benchmark needs consented, varied, manually annotated footage. No user study, revenue improvement, physical-device validation, real-platform safe-zone certification is made. AWS timings below are measured demo executions; costs are estimates, not billing guarantees.
 
-## AWS architecture and deployment
+## AWS deployment
+
+Public HTTPS viewer: **https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/**
+
+Upload API: `POST https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/api/uploads`. No login, key, or paid plan is required to try the original demo or upload owned footage. The default sample is a report produced by the deployed AWS worker, with the immutable original synthetic video for playback.
 
 ```mermaid
 flowchart LR
-    O[Owner CLI / AWS_PROFILE] -->|authenticated upload incoming/*| U[Private encrypted S3 uploads\n7-day lifecycle]
-    U -->|S3 event| L[Lambda container x86_64\nOpenCV 5 + DB model\nlimits / retries / dedup]
-    L --> R[Private S3 reports\n30-day lifecycle]
-    L --> J[DynamoDB job index\nlease + TTL]
-    L --> C[CloudWatch logs 14 days\nEMF metrics + error alarm]
-    R -->|Origin Access Control| F[CloudFront HTTPS viewer\nshareable report URLs]
-    F --> B[Browser timeline / CSV / contact sheet]
-    Long[Longer videos: future Batch/Fargate path] -. not implemented .-> L
+    B[Browser / public HTTPS viewer] --> A["Lambda Function URL<br/>Python API / 256 MiB / concurrency 4"]
+    A -->|signed single-write PUT| U[Private encrypted S3 uploads]
+    B -->|video + checksum directly to S3| U
+    U -->|object-created event| L["Lambda x86 container<br/>OpenCV 5 + pinned DB model<br/>2048 MiB / 180s / concurrency 1"]
+    L --> R[Private S3 report / CSV / contact sheet]
+    L --> J[DynamoDB job lease + TTL]
+    A -->|poll status| J
+    R -->|API serves shareable artifacts| B
+    L --> C[CloudWatch logs / EMF metrics / alarms]
+    E[ECR image + private deployment artifact bucket] --> L
+    Q[$5 monthly console budget] -. monitors gross account cost .-> C
 ```
 
-The design follows official [SAM image-function](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-function.html), [Lambda container](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html), [CloudFront OAC](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html), and [Lambda concurrency](https://docs.aws.amazon.com/lambda/latest/dg/configuration-concurrency.html) documentation.
+API flow: hash the clip with SHA-256; post `{ "filename": "clip.mp4", "size": 12345, "sha256": "<64 lowercase hex characters>" }` to `/api/uploads`; PUT the original bytes to the returned `upload_url` using every returned header; poll `status_url` until `COMPLETE`; open `/?report=<report_url>`. The browser does this automatically. Signed URLs last 180 seconds, bind the exact byte count and SHA-256, and require `If-None-Match: *`. A second write receives HTTP 412. Never save signed URLs in logs or source control.
 
-[infra/template.yaml](infra/template.yaml) is AWS SAM infrastructure; [infra/handler.py](infra/handler.py) runs the same real analyzer. The image downloads the pinned DB model at build time. IAM grants only the upload input prefix, report output prefix, job table and log group. Uploads are private, TLS-only and SSE-encrypted. Lambda concurrency is 2 and timeout is 540s; jobs use an ETag-derived ID and DynamoDB lease to tolerate duplicate events, and track failed retries. CloudWatch extracts completion/failure/analysis-time metrics from structured logs. Lifecycle expiration is asynchronous, not an exact-hour deletion guarantee. No credentials belong in files or Git.
+The endpoint serves the dependency-free viewer from a small zip Lambda. The analyzer is an actual Linux container built on pilot and pushed to ECR; its pinned model is downloaded and verified at build time. There is no Vercel, CloudFront, NAT gateway, EC2 instance or always-running server. Public Function URL permissions include both invocation permissions required by current Lambda behavior. [Lambda URL permissions](https://docs.aws.amazon.com/lambda/latest/dg/urls-auth.html), [S3 signed checksums](https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-presigned-url.html).
 
-The viewer and report images are intentionally **shareable to anyone with their CloudFront URL**; only publish owned synthetic/demo footage there. Original uploads are not served to the viewer: attach a local video when needed. Reports expire after 30 days, job records have 30-day TTL, and buckets/table are retained on stack deletion to avoid accidental loss. Cleanup of retained resources, ECR images, and CloudFront must be owner-managed; infrastructure is not claimed to be free. Longer videos are rejected, not silently sent to a nonexistent Batch service.
+**Credit controls and limits:** the CLI confirmed an ACTIVE **FREE** plan with $100 credits on October 16, 2026, expiring April 16, 2027. ECR, Lambda, S3, DynamoDB, CloudWatch, CloudFormation and Budgets operations all succeeded on this account; no paid-plan upgrade occurred. The deploy script refuses a non-Free plan or <=$10 remaining credits. AWS documents that the Free plan ends when its credits or six months expire; services then stop unless the owner upgrades. [Free plan documentation](https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/free-tier-plans.html).
 
-Build and smoke-test the container locally on Linux without AWS credentials:
+The public demo admits **200 uploads total**, using an atomic DynamoDB counter without TTL, and closes new uploads at **2026-11-11 00:00 UTC**. Maximum input: **25 MiB, 120 seconds, 7200 frames, 60 fps, 4.2 megapixels**. The lightweight API reserves four concurrent executions and the analyzer reserves one; the Function URL consequently allows at most 40 requests/second and can return 429 during bursts. Invalid inputs persist a failed job without automatic retries; transient analysis errors have at most two asynchronous retries within one hour. Job leases deduplicate events and expose stopped-worker/retry states. No external LLM or API key is involved.
+
+Estimated light judging traffic: **US$1–3/month before credits**, assuming <=200 small analyses, modest viewer traffic, one image, and no other account workloads. Lambda free allowances may reduce this further. Even if all 200 jobs hit their 180-second timeout three times, analyzer compute is about **$3.60 gross** at 2 GiB, before allowances; API requests, transfer, ECR, S3, DynamoDB and observability are additional. The $5 monthly AWS Budget tracks gross account costs excluding credits; Lambda errors and unusually high API traffic have CloudWatch alarms. These are **console monitors, without email/SNS subscribers or automatic shutoff**. A budget is not a spending cap, billing/credit balances lag, and public traffic or other workloads can consume shared credits. Keep the account on the Free plan; never upgrade it for this demo. [Lambda pricing](https://aws.amazon.com/lambda/pricing/), [Budget update delays](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html).
+
+Uploaded originals expire after seven days; reports/job records after 30 days; logs after 14 days. The immutable `demo/demo.mp4` and default report remain until explicit teardown. The original uploaded video stays private and is previewed locally through a browser blob URL; someone reopening a shared report can attach their own copy. Reports, metrics and contact sheets are shareable to anyone with their unguessable URL, so use owned demonstration footage. Expiration is asynchronous. Buckets and the table are retained on stack deletion.
+
+**Created resources, Sydney (`ap-southeast-2`):** CloudFormation stack `shorts-qc`; Lambda `shorts-qc-api` and `shorts-qc-analyze` plus the public Function URL; ECR repository `shorts-qc`; S3 `shorts-qc-381183038133-ap-southeast-2-uploads`, `shorts-qc-reportbucket-b8qjap07vgrm`, `shorts-qc-381183038133-ap-southeast-2-artifacts`; DynamoDB `shorts-qc-Jobs-11REP610MY09F`; two IAM execution roles, two 14-day log groups, two CloudWatch alarms and Budget `shorts-qc-monthly-5-usd`. Exact IDs and configuration are in [AWS evidence](media/aws-evidence.json).
+
+Deploy again from the Mac using the existing AWS CLI login (default profile), SSH access to pilot, and the established Python/test/model environment on pilot:
 
 ```bash
-docker build --provenance=false --platform linux/amd64 -f infra/Dockerfile -t shorts-qc:verify .
-docker run --rm --network none --read-only --tmpfs /tmp:size=256m \
-  --entrypoint python -v "$PWD/media:/input:ro" shorts-qc:verify \
-  -m shorts_qc analyze /input/demo.mp4 --out /tmp/report --text-model /opt/models/text.onnx
+# cfn-lint must be installed on pilot; CFN_LINT can point to an existing executable.
+CFN_LINT=/tmp/shortsqc-cfn312/bin/cfn-lint AWS_REGION=ap-southeast-2 ./infra/deploy.sh
+# Set IMAGE_URI to an existing ECR URI to update only API/assets/infrastructure.
+python3 scripts/aws-demo.py media/demo.mp4 /path/to/owned-repaired.mp4
+# Refresh CLI logs/config/metrics later without re-running clips:
+python3 scripts/aws-demo.py
 ```
 
-Browser checks/captures (Node 22): `npm ci --ignore-scripts`, `npx playwright install chromium`, then run `shorts-qc serve media --port 18765` and `VIEWER_URL=http://127.0.0.1:18765 npm run capture`. `CHROMIUM_PATH` can select an already installed Chromium. Stop the server when finished. CI runs Python and browser checks on Ubuntu.
+[infra/deploy.sh](infra/deploy.sh) validates tests/template on pilot, builds and pushes the single-architecture container there, uploads the tiny API zip, and uses CloudFormation's SAM transform. Only a short-lived ECR login token crosses SSH stdin; Docker's temporary auth file lives in RAM and is removed. Mac AWS credentials are never copied to pilot or written in the repo. API secrets are not required. Build dependencies: Docker, Python environment from the run instructions, and `cfn-lint==1.57.2` on pilot; AWS CLI, SSH and rsync on the Mac. For a fresh pilot environment, install these dependencies there, download the pinned model, and set `CFN_LINT` to that environment's executable.
 
-Once the owner has supplied an account and approved AWS use, on a machine with AWS CLI v2, SAM CLI and Docker:
+Run `VIEWER_URL=http://127.0.0.1:18765 npm run capture` against a bounded local viewer for offline browser checks. For the deployed app, sync the repository to pilot, run `node scripts/capture-aws.mjs` there, and copy back `media/aws-*.png`. Use `METRICS_ONLY=1` with that script to render the latest recorded CloudWatch metrics without uploading again. Set `CHROMIUM_PATH` to an existing pilot Chromium executable if its version differs from the pinned Playwright download. It checks actual browser upload/CORS/checksum, polling, DNN report, share URL, video decoding/206 ranges, evidence downloads, filters and mobile layout. All AWS screenshots use a **1920×1080** viewport. The AWS evidence screenshot is clearly labeled CLI output rendered for readability; it is not a screenshot of the AWS Console.
+
+**Execution evidence:** [raw CLI/job evidence](media/aws-evidence.json), [AWS viewer](media/aws-viewer.png), [completed browser upload](media/aws-upload-complete.png), [CloudWatch request/timing evidence](media/aws-evidence.png), [CloudWatch metrics](media/aws-metrics.png).
+
+| Real AWS run | Frames | OpenCV analysis | Upload to report | Result |
+| --- | ---: | ---: | ---: | --- |
+| Original synthetic demo | 144 | 12.899 s | 47.094 s | 11 findings; DNN captions active |
+| Repaired synthetic demo | 120 | 6.713 s | 12.449 s | 6 findings; DNN captions active |
+| Browser upload of original | 144 | 7.969 s | Browser flow passed | 11 findings; DNN captions active |
+
+These are separate measurements: the report's analysis timer covers the detector; upload-to-report includes transfer, S3 event delivery, startup and polling. CloudWatch records worker durations and request IDs separately. The first worker's log shows 37.114 s execution plus 0.436 s initialization; measured maximum memory was 296 MiB. The repaired worker used 304 MiB. Latest CLI snapshot reports FREE/ACTIVE and **$140 remaining credits**; balance updates can lag.
+
+**Verified on pilot:** 50 pytest cases pass, including real DNN/ffmpeg and signed-upload, single-write, cap, expiry, stopped-worker, and regional-endpoint checks. SAM lint (`cfn-lint 1.57.2`) passes. Offline browser checks and the live AWS Playwright flow both pass; the latter uploads through the actual browser and verifies S3 CORS, checksum headers, polling, shared reports, video ranges/seek, evidence downloads, filtering and mobile overflow. Three actual worker invocations completed with zero Lambda Errors in the captured CloudWatch buckets. No browser or dev server is left running by these checks.
+
+### Cleanup after judging — keep live through approximately November 10
+
+No cleanup was executed. After judging, the owner can first pause new traffic without losing reports:
 
 ```bash
-AWS_PROFILE=owner AWS_REGION=us-east-1 ./infra/deploy.sh
+export AWS_REGION=ap-southeast-2
+aws lambda put-function-concurrency --function-name shorts-qc-api --reserved-concurrent-executions 0
+aws lambda put-function-concurrency --function-name shorts-qc-analyze --reserved-concurrent-executions 0
 ```
 
-This validates SAM, builds the real container, deploys the stack and syncs the viewer in one command. It prints the upload bucket, job table and viewer URL. Upload with the printed `aws s3 cp` command, inspect the job table's `report_key`, then open `https://<distribution>/viewer/index.html?report=../reports/<job_id>/report.json`. Lambda quotas must allow 3,072 MiB per function and two reserved workers; AWS requires at least 102 account concurrency units because 100 remain unreserved. New accounts may need a free quota increase; the deploy command checks concurrency before building. The account needs permission to create/update CloudFormation, IAM roles, ECR repositories, S3 buckets, Lambda functions, DynamoDB, CloudFront and CloudWatch resources. The runtime role is much narrower than the deployment role.
+After confirming the reports are no longer needed, remove the stack and retained data with these destructive commands. The commands use the exact current resource names; inspect them before running. There is no CloudFront distribution to disable.
 
-**Exactly what is needed from the owner for AWS:** (1) create/sign in to an AWS account and enable billing or applicable credits; (2) provide a configured AWS CLI profile via `AWS_PROFILE`, region, and a deployment role with the permissions above; (3) approve the deployment's possible AWS charges; (4) request any required free Lambda quota increase for 3,072 MiB memory and 102+ account concurrency. No LLM key, custom domain, new paid service or Devpost submission is needed to run the app. Credentials should be entered into the owner's credential manager/CLI, never sent in a report or committed.
+```bash
+aws cloudformation delete-stack --stack-name shorts-qc
+aws cloudformation wait stack-delete-complete --stack-name shorts-qc
+aws s3 rb s3://shorts-qc-381183038133-ap-southeast-2-uploads --force
+aws s3 rb s3://shorts-qc-reportbucket-b8qjap07vgrm --force
+aws s3 rb s3://shorts-qc-381183038133-ap-southeast-2-artifacts --force
+aws dynamodb delete-table --table-name shorts-qc-Jobs-11REP610MY09F
+aws ecr delete-repository --repository-name shorts-qc --force
+```
 
-**Validation status:** 38 pytest cases pass on pilot, including actual DNN inference and real ffmpeg audio preservation/trimming. Desktop (1920×1080 viewport) and mobile (390×844) Playwright checks pass for report loading, filters, precise timeline seeking, HTTP 206 ranges, evidence downloads, safe text insertion and overflow; captures are in `media/`. SAM template lint passes with cfn-lint 1.57.2. The actual Lambda image builds and real OpenCV+DNN handler analysis passes inside a network-disabled local container using mocked AWS services (2.419s for the 12-second demo; this is local timing). Cloud SAM template validation and handler tests are local infrastructure checks. No AWS account was created, no cloud resources were deployed, no money was spent, and no AWS workload execution is claimed. To complete competition evidence, run a real uploaded clip on AWS and retain its job ID, output JSON with OpenCV version, Lambda/CloudWatch execution logs, architecture/service configuration, and measured timing. The competition does not prescribe one specific AWS screenshot format; the substantive AWS workload must be demonstrable.
+CloudFormation removes the functions, Function URL, roles, log groups, alarms and Budget. The three buckets, retained table and separately created ECR repository require the explicit removals above. Verify `aws cloudformation describe-stacks --stack-name shorts-qc` reports no stack and the named S3/ECR/DynamoDB resources are gone. This task leaves everything live for judging.
 
 ## Competition delivery checklist / technical report
 
 This README is the technical report: problem/users, architecture, OpenCV implementation, deployment method, evaluation, limitations and responsible operation are above. The official [overview](https://opencv26.devpost.com/), [rules](https://opencv26.devpost.com/rules) and [resources](https://opencv26.devpost.com/resources) were read with curl on 2026-10-16. They require substantive OpenCV 5 and a meaningful AWS component, judge-accessible code/archive, pinned dependencies and reproducible build/deploy/tests, architecture diagram, evaluation including failure cases, a working web endpoint **or arranged live screen-share**, and a public/unlisted **video of no more than five minutes showing the team, working app, architecture and principal results**. Agentic path additionally needs workflow/trace, task effectiveness, failure handling, observability and human control. [media/trace.json](media/trace.json) holds the local real repair loop.
 
-Deadline discrepancy: page header says **2026-10-26 23:45 PDT**, while overview body says **23:59 PDT**. Use the earlier 23:45 PDT cutoff (2026-10-27 15:45 KST) unless organizers clarify. The owner must handle their own registration, team representation, final judge-accessible video hosting, endpoint/live-demo arrangement, and Devpost submission. This job does not register accounts or submit entries.
+Deadline discrepancy: page header says **2026-10-26 23:45 PDT**, while overview body says **23:59 PDT**. Use the earlier 23:45 PDT cutoff (2026-10-27 15:45 KST) unless organizers clarify. The owner must handle their own registration, team representation, final judge-accessible video hosting, and Devpost submission. The public endpoint is already deployed. This job does not register accounts or submit entries.
 
 ## What was built during the hackathon
 
-Built from an empty repository for this competition: original OpenCV 5 detector pipeline, DB caption integration and safe-zone checks, JSON/CSV/contact-sheet evidence, static timeline viewer, synthetic dataset and measured evaluation, bounded ffmpeg repair/re-verification loop with traces, AWS SAM container deployment, mocked cloud boundary tests and CI. OpenCV, NumPy, ffmpeg, AWS services and the pretrained external DB weights predate the project and are credited, not claimed as our inventions.
+Built from an empty repository for this competition: original OpenCV 5 detector pipeline, DB caption integration and safe-zone checks, JSON/CSV/contact-sheet evidence, static timeline viewer, synthetic dataset and measured evaluation, bounded ffmpeg repair/re-verification loop with traces, AWS SAM container deployment, public checksummed upload/status API, live HTTPS report viewer, credit controls, actual AWS end-to-end evidence, mocked cloud boundary tests and CI. OpenCV, NumPy, ffmpeg, AWS services and the pretrained external DB weights predate the project and are credited, not claimed as our inventions.
 
 ## External dependencies and license
 

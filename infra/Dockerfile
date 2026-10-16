@@ -7,5 +7,5 @@ COPY infra/handler.py ${LAMBDA_TASK_ROOT}/handler.py
 RUN pip install --no-cache-dir -r requirements.lock && \
     pip install --no-cache-dir --no-deps --no-build-isolation . && \
     python -m shorts_qc.model --output /opt/models/text.onnx
-ENV TEXT_MODEL=/opt/models/text.onnx
+ENV TEXT_MODEL=/opt/models/text.onnx OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1
 CMD ["handler.handler"]
