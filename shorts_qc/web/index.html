@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shorts QC · Before you publish</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script>
+</head>
+<body>
+<header><a class="brand" href="./"><span class="mark">▥</span> shorts<span>qc</span><small>VIDEO QUALITY GATE</small></a><div class="header-end"><span class="led"></span><span id="engine">OpenCV 5</span><span class="badge">LOCAL ANALYSIS</span></div></header>
+<main>
+  <div class="page-top"><div><p class="eyebrow">YOUR LAST CHECK BEFORE UPLOAD</p><h1>Publish with confidence.</h1><p class="intro">Find the frames that need a second look. Fix what you can. Verify again.</p></div><label class="load-button">Open report <span>↗</span><input id="file" type="file" accept=".json,application/json"></label></div>
+  <div id="error" role="alert" hidden></div>
+  <section class="run-bar" aria-label="Analysis source"><div class="file-icon">▷</div><div><h2 id="filename">Load a report to begin</h2><p id="source">Choose a Shorts QC report.json, or run the sample.</p></div><span class="spacer"></span><span id="caption-status" class="badge">Caption checks</span><span id="cloud" class="cloud">AWS: not deployed</span></section>
+  <div class="stats"><article><p>QUALITY GATE</p><strong id="status" class="amber">Awaiting report</strong><small>Human review before publishing</small></article><article><p>ISSUES TO REVIEW</p><strong id="issue-count">—</strong><small id="types">Across visual quality checks</small></article><article><p>FRAMES INSPECTED</p><strong id="frames">—</strong><small id="runtime">Measured analysis time</small></article><article><p>CAPTION SAFE ZONE</p><strong id="safe-status">—</strong><small>Configurable overlay guide</small></article></div>
+  <div class="workspace">
+    <section class="panel preview-panel"><div class="panel-title"><h2>Frame preview</h2><span class="muted">9:16 GUIDE</span></div><div class="video-stage"><div class="phone"><video id="video" controls preload="metadata" aria-label="Source video preview"></video><div id="safe-guide" class="safe-guide"><span>CAPTION SAFE AREA</span></div></div></div><p class="preview-note">Green marks the caption-safe area. Check the original before approving a fix.</p><label class="attach">Attach local video <input id="video-file" type="file" accept="video/*"></label></section>
+    <div class="right-stack"><section class="panel timeline-panel"><div class="panel-title"><h2>Quality timeline</h2><span id="duration" class="muted">—</span></div><p class="helper">Select a flagged segment to inspect the evidence.</p><div id="timeline" class="timeline" aria-label="Video quality timeline"></div><div class="time-axis"><span>0:00</span><span id="middle">—</span><span id="end">—</span></div><div class="legend"><span><i class="error-dot"></i> Needs attention</span><span><i class="review-dot"></i> Review transition / exposure</span></div></section>
+    <section class="panel findings-panel"><div class="panel-title"><h2>Findings & fix plan <span id="finding-count" class="count">0</span></h2><label class="sr-only" for="filter">Filter findings</label><select id="filter"><option value="all">All findings</option><option value="error">Needs attention</option><option value="review">Review only</option></select></div><div id="findings" aria-live="polite"></div></section></div>
+  </div>
+  <section class="panel evidence"><div><p class="eyebrow">EVIDENCE, NOT GUESSWORK</p><h2>Every flag has a frame behind it.</h2><p>Per-frame measurements and an annotated contact sheet keep decisions traceable.</p><div class="downloads"><a id="json-link" download>Report JSON ↓</a><a id="csv-link" download>Frame metrics CSV ↓</a></div><details><summary>Analysis limits & responsible use</summary><ul id="limits"></ul></details></div><a id="sheet-link" target="_blank" rel="noopener"><img id="sheet" alt="Annotated video contact sheet with timestamps and caption-safe rectangles"></a></section>
+  <footer><span>shorts qc <span class="muted">/ Built for the frame before publish.</span></span><span>OpenCV 5 vision · Original synthetic demo · No footage sent to an LLM</span></footer>
+</main>
+</body></html>

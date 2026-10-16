@@ -1,0 +1,18 @@
+# Exact Python 3.12 environment used for analysis, tests, and cloud image.
+setuptools==80.9.0
+RangeHTTPServer==1.4.0
+boto3==1.40.54
+botocore==1.40.76
+iniconfig==2.3.1
+jmespath==1.1.0
+numpy==2.2.6
+opencv-python==5.0.0.93
+packaging==26.3
+pluggy==1.7.0
+Pygments==2.21.0
+pytest==8.4.2
+python-dateutil==2.9.0.post0
+PyYAML==6.0.3
+s3transfer==0.14.0
+six==1.17.0
+urllib3==2.8.0

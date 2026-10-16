@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shorts-qc"
+version = "0.1.0"
+description = "An evidence-first quality gate for vertical video, powered by OpenCV 5"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["opencv-python==5.0.0.93", "numpy==2.2.6", "RangeHTTPServer==1.4.0"]
+
+[project.optional-dependencies]
+test = ["pytest==8.4.2", "boto3==1.40.54", "PyYAML==6.0.3"]
+
+[project.scripts]
+shorts-qc = "shorts_qc.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["shorts_qc*"]
+
+[tool.setuptools.package-data]
+shorts_qc = ["web/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

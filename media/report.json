@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0",
+  "engine": {
+    "name": "OpenCV",
+    "version": "5.0.0"
+  },
+  "mode": "local-analysis",
+  "cloud_status": "not deployed",
+  "source": {
+    "name": "demo.mp4",
+    "sha256": "25ac0ce22a1c6760580ab0283031f67dfbf9215271c56065399be32af28ff784",
+    "width": 324,
+    "height": 576,
+    "fps": 12.0,
+    "frames": 144,
+    "duration": 12.0
+  },
+  "config": {
+    "blur_laplacian": 65.0,
+    "blur_fft": 0.012,
+    "black_mean": 9.0,
+    "black_fraction": 0.96,
+    "dark_mean": 43.0,
+    "freeze_diff": 0.65,
+    "freeze_seconds": 0.6,
+    "cut_diff": 32.0,
+    "cut_ssim": 0.48,
+    "flicker_delta": 22.0,
+    "flicker_structure_diff": 12.0,
+    "min_issue_seconds": 0.16,
+    "text_interval": 0.5,
+    "safe_left": 0.05,
+    "safe_right": 0.82,
+    "safe_top": 0.1,
+    "safe_bottom": 0.78,
+    "border_fraction": 0.02,
+    "aspect_tolerance": 0.025,
+    "max_seconds": 180.0,
+    "max_frames": 9000,
+    "max_dimension": 640
+  },
+  "caption_detection": {
+    "status": "active",
+    "model": "OpenCV Zoo PP-OCRv3 DB English",
+    "interval_seconds": 0.5
+  },
+  "issues": [
+    {
+      "type": "blur",
+      "start": 2.0,
+      "end": 4.0,
+      "severity": "error",
+      "message": "Re-render or replace this segment; sharpening cannot recover missing detail.",
+      "frames": 24
+    },
+    {
+      "type": "black",
+      "start": 4.0,
+      "end": 5.0,
+      "severity": "error",
+      "message": "Review and trim unintended black frames.",
+      "frames": 12
+    },
+    {
+      "type": "scene_cut",
+      "start": 4.0,
+      "end": 4.0833,
+      "severity": "review",
+      "message": "Review this abrupt transition; an intentional cut can be accepted.",
+      "frames": 1
+    },
+    {
+      "type": "scene_cut",
+      "start": 5.0,
+      "end": 5.0833,
+      "severity": "review",
+      "message": "Review this abrupt transition; an intentional cut can be accepted.",
+      "frames": 1
+    },
+    {
+      "type": "frozen",
+      "start": 5.0833,
+      "end": 6.0,
+      "severity": "error",
+      "message": "Review stillness; trim only if it is an unintended hold.",
+      "frames": 11
+    },
+    {
+      "type": "dark",
+      "start": 6.0,
+      "end": 8.0,
+      "severity": "review",
+      "message": "Apply a modest exposure lift, then re-check highlights and noise.",
+      "frames": 24
+    },
+    {
+      "type": "scene_cut",
+      "start": 6.0,
+      "end": 6.0833,
+      "severity": "review",
+      "message": "Review this abrupt transition; an intentional cut can be accepted.",
+      "frames": 1
+    },
+    {
+      "type": "scene_cut",
+      "start": 8.0,
+      "end": 8.0833,
+      "severity": "review",
+      "message": "Review this abrupt transition; an intentional cut can be accepted.",
+      "frames": 1
+    },
+    {
+      "type": "flicker",
+      "start": 8.0833,
+      "end": 9.0,
+      "severity": "error",
+      "message": "Re-render with stable exposure; inspect flashing before publishing.",
+      "frames": 11
+    },
+    {
+      "type": "caption_safe_zone",
+      "start": 9.0,
+      "end": 11.0,
+      "severity": "error",
+      "message": "Move captions inside the highlighted safe rectangle and re-render.",
+      "frames": 24
+    },
+    {
+      "type": "scene_cut",
+      "start": 9.0,
+      "end": 9.0833,
+      "severity": "review",
+      "message": "Review this abrupt transition; an intentional cut can be accepted.",
+      "frames": 1
+    }
+  ],
+  "summary": {
+    "status": "needs_review",
+    "issue_count": 11,
+    "types": [
+      "black",
+      "blur",
+      "caption_safe_zone",
+      "dark",
+      "flicker",
+      "frozen",
+      "scene_cut"
+    ]
+  },
+  "fix_plan": [
+    {
+      "type": "black",
+      "action": "Review and trim unintended black frames.",
+      "automatic_candidate": true
+    },
+    {
+      "type": "blur",
+      "action": "Re-render or replace this segment; sharpening cannot recover missing detail.",
+      "automatic_candidate": false
+    },
+    {
+      "type": "caption_safe_zone",
+      "action": "Move captions inside the highlighted safe rectangle and re-render.",
+      "automatic_candidate": false
+    },
+    {
+      "type": "dark",
+      "action": "Apply a modest exposure lift, then re-check highlights and noise.",
+      "automatic_candidate": true
+    },
+    {
+      "type": "flicker",
+      "action": "Re-render with stable exposure; inspect flashing before publishing.",
+      "automatic_candidate": false
+    },
+    {
+      "type": "frozen",
+      "action": "Review stillness; trim only if it is an unintended hold.",
+      "automatic_candidate": true
+    },
+    {
+      "type": "scene_cut",
+      "action": "Review this abrupt transition; an intentional cut can be accepted.",
+      "automatic_candidate": false
+    }
+  ],
+  "artifacts": {
+    "metrics": "metrics.csv",
+    "contact_sheet": "contact-sheet.jpg"
+  },
+  "limitations": [
+    "Heuristic thresholds require calibration to the source style.",
+    "Intentional stills, fades and cuts require human review.",
+    "Safe zones are configurable generic guides, not platform guarantees.",
+    "Text detection cannot prove that missing glyphs were cropped; edge contact is a risk signal.",
+    "Variable frame rate timestamps are approximated using nominal FPS; normalize to CFR for precise edits."
+  ],
+  "analysis_seconds": 1.3609
+}

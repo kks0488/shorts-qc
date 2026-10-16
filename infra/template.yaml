@@ -1,0 +1,206 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Shorts QC bounded OpenCV 5 analysis and private S3 origin viewer
+
+Resources:
+  UploadBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-uploads'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteUploadsAfterSevenDays
+            Status: Enabled
+            Prefix: incoming/
+            ExpirationInDays: 7
+            AbortIncompleteMultipartUpload: {DaysAfterInitiation: 1}
+  UploadBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref UploadBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt UploadBucket.Arn
+              - !Sub '${UploadBucket.Arn}/*'
+            Condition: {Bool: {'aws:SecureTransport': 'false'}}
+  ReportBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteReportsAfterThirtyDays
+            Status: Enabled
+            Prefix: reports/
+            ExpirationInDays: 30
+  Jobs:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions: [{AttributeName: job_id, AttributeType: S}]
+      KeySchema: [{AttributeName: job_id, KeyType: HASH}]
+      TimeToLiveSpecification: {AttributeName: expires_at, Enabled: true}
+      SSESpecification: {SSEEnabled: true}
+  AnalyzeLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${AWS::StackName}-analyze'
+      RetentionInDays: 14
+  Analyze:
+    Type: AWS::Serverless::Function
+    Metadata:
+      Dockerfile: infra/Dockerfile
+      DockerContext: ..
+      DockerTag: shorts-qc-opencv5
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-analyze'
+      PackageType: Image
+      Architectures: [x86_64]
+      MemorySize: 3072
+      Timeout: 540
+      ReservedConcurrentExecutions: 2
+      EphemeralStorage: {Size: 2048}
+      Environment:
+        Variables:
+          UPLOAD_BUCKET: !Sub '${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-uploads'
+          REPORT_BUCKET: !Ref ReportBucket
+          JOBS_TABLE: !Ref Jobs
+          MAX_UPLOAD_BYTES: '104857600'
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 3600
+        MaximumRetryAttempts: 2
+      Role: !GetAtt AnalyzeRole.Arn
+      Events:
+        Uploaded:
+          Type: S3
+          Properties:
+            Bucket: !Ref UploadBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules: [{Name: prefix, Value: incoming/}]
+  AnalyzeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BoundedAnalysis
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: ['s3:GetObject']
+                # Literal name avoids a bucket-notification dependency cycle.
+                Resource: !Sub 'arn:${AWS::Partition}:s3:::${AWS::StackName}-${AWS::AccountId}-${AWS::Region}-uploads/incoming/*'
+              - Effect: Allow
+                Action: ['s3:PutObject']
+                Resource: !Sub '${ReportBucket.Arn}/reports/*'
+              - Effect: Allow
+                Action: ['dynamodb:PutItem', 'dynamodb:UpdateItem']
+                Resource: !GetAtt Jobs.Arn
+              - Effect: Allow
+                Action: ['logs:CreateLogStream', 'logs:PutLogEvents']
+                Resource: !GetAtt AnalyzeLogGroup.Arn
+  AnalysisErrors:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Check the Lambda log group and failed DynamoDB job records.
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions: [{Name: FunctionName, Value: !Ref Analyze}]
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  ViewerAccess:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub '${AWS::StackName}-${AWS::Region}-viewer'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+  Viewer:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Shorts QC viewer and shareable analysis reports
+        DefaultRootObject: viewer/index.html
+        HttpVersion: http2
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: Reports
+            DomainName: !GetAtt ReportBucket.RegionalDomainName
+            OriginAccessControlId: !Ref ViewerAccess
+            S3OriginConfig: {OriginAccessIdentity: ''}
+        DefaultCacheBehavior:
+          TargetOriginId: Reports
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD]
+          CachedMethods: [GET, HEAD]
+          Compress: true
+          # AWS-managed CachingDisabled policy keeps uploaded report revisions fresh.
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+        ViewerCertificate: {CloudFrontDefaultCertificate: true}
+  ReportBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ReportBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: cloudfront.amazonaws.com}
+            Action: s3:GetObject
+            Resource:
+              - !Sub '${ReportBucket.Arn}/viewer/*'
+              - !Sub '${ReportBucket.Arn}/reports/*'
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${Viewer}'
+          - Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource: [!GetAtt ReportBucket.Arn, !Sub '${ReportBucket.Arn}/*']
+            Condition: {Bool: {'aws:SecureTransport': 'false'}}
+Outputs:
+  UploadBucket: {Value: !Ref UploadBucket}
+  ReportBucket: {Value: !Ref ReportBucket}
+  JobsTable: {Value: !Ref Jobs}
+  AnalyzeFunction: {Value: !Ref Analyze}
+  ViewerURL: {Value: !Sub 'https://${Viewer.DomainName}/viewer/index.html'}
+  Logs: {Value: !Ref AnalyzeLogGroup}

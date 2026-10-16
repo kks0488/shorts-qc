@@ -1,0 +1,8 @@
+{
+  "name": "shorts-qc-capture",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser verification and real screen capture only; viewer has no JS dependencies",
+  "scripts": {"capture": "node scripts/capture.mjs"},
+  "devDependencies": {"playwright": "1.58.2"}
+}

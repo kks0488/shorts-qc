@@ -1,0 +1,198 @@
+{
+  "schema_version": "1.0",
+  "split": "heldout",
+  "seed": 2026,
+  "clips": 11,
+  "frames": 264,
+  "unit": "per decoded frame; no boundary tolerance",
+  "thresholds": "Default Config; no heldout tuning",
+  "caption_detection": "active",
+  "metrics": {
+    "blur": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "black": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "dark": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "frozen": {
+      "true_positive": 21,
+      "false_positive": 0,
+      "false_negative": 2,
+      "true_negative": 241,
+      "precision": 1.0,
+      "recall": 0.913
+    },
+    "flicker": {
+      "true_positive": 23,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 241,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "scene_cut": {
+      "true_positive": 1,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 263,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "caption_safe_zone": {
+      "true_positive": 48,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 216,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "caption_clipped": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "letterbox": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "aspect_ratio": {
+      "true_positive": 24,
+      "false_positive": 0,
+      "false_negative": 0,
+      "true_negative": 240,
+      "precision": 1.0,
+      "recall": 1.0
+    }
+  },
+  "clip_results": [
+    {
+      "file": "heldout-clean.mp4",
+      "seed": 102029,
+      "injected": "clean",
+      "detected_types": [],
+      "report": "heldout-clean/report.json"
+    },
+    {
+      "file": "heldout-blur.mp4",
+      "seed": 103026,
+      "injected": "blur",
+      "detected_types": [
+        "blur"
+      ],
+      "report": "heldout-blur/report.json"
+    },
+    {
+      "file": "heldout-black.mp4",
+      "seed": 104023,
+      "injected": "black",
+      "detected_types": [
+        "black"
+      ],
+      "report": "heldout-black/report.json"
+    },
+    {
+      "file": "heldout-dark.mp4",
+      "seed": 105020,
+      "injected": "dark",
+      "detected_types": [
+        "dark"
+      ],
+      "report": "heldout-dark/report.json"
+    },
+    {
+      "file": "heldout-frozen.mp4",
+      "seed": 106017,
+      "injected": "frozen",
+      "detected_types": [
+        "frozen"
+      ],
+      "report": "heldout-frozen/report.json"
+    },
+    {
+      "file": "heldout-flicker.mp4",
+      "seed": 107014,
+      "injected": "flicker",
+      "detected_types": [
+        "flicker"
+      ],
+      "report": "heldout-flicker/report.json"
+    },
+    {
+      "file": "heldout-scene_cut.mp4",
+      "seed": 108011,
+      "injected": "scene_cut",
+      "detected_types": [
+        "scene_cut"
+      ],
+      "report": "heldout-scene_cut/report.json"
+    },
+    {
+      "file": "heldout-caption_safe_zone.mp4",
+      "seed": 109008,
+      "injected": "caption_safe_zone",
+      "detected_types": [
+        "caption_safe_zone"
+      ],
+      "report": "heldout-caption_safe_zone/report.json"
+    },
+    {
+      "file": "heldout-caption_clipped.mp4",
+      "seed": 110005,
+      "injected": "caption_clipped",
+      "detected_types": [
+        "caption_clipped",
+        "caption_safe_zone"
+      ],
+      "report": "heldout-caption_clipped/report.json"
+    },
+    {
+      "file": "heldout-letterbox.mp4",
+      "seed": 111002,
+      "injected": "letterbox",
+      "detected_types": [
+        "letterbox"
+      ],
+      "report": "heldout-letterbox/report.json"
+    },
+    {
+      "file": "heldout-aspect_ratio.mp4",
+      "seed": 111999,
+      "injected": "aspect_ratio",
+      "detected_types": [
+        "aspect_ratio"
+      ],
+      "report": "heldout-aspect_ratio/report.json"
+    }
+  ],
+  "limitations": [
+    "Small synthetic benchmark measures injected defects, not real-world accuracy.",
+    "Calibration and heldout clips use independent seeds but the same procedural generator.",
+    "Caption clipping labels use deliberately edge-truncated text; detection is a risk signal.",
+    "Text is sampled every 0.5 seconds; this benchmark uses persistent captions."
+  ]
+}

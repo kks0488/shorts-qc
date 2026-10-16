@@ -1,0 +1,17 @@
+.venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.env*
+!.env.example
+.aws-sam/
+models/
+work/
+*.mp4
+*.avi
+*.log
+!media/demo.mp4

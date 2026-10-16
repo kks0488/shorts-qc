@@ -1,0 +1,93 @@
+{
+  "policy": "deterministic bounded agent; no LLM or API key required",
+  "steps": [
+    {
+      "tool": "opencv.analyze",
+      "result": {
+        "status": "needs_review",
+        "issue_count": 11,
+        "types": [
+          "black",
+          "blur",
+          "caption_safe_zone",
+          "dark",
+          "flicker",
+          "frozen",
+          "scene_cut"
+        ]
+      }
+    },
+    {
+      "decision": "trim evidence intervals; lift only dark intervals; fit 9:16 without cropping",
+      "retained_intervals": [
+        [
+          0.0,
+          4.0
+        ],
+        [
+          6.0,
+          12.0
+        ]
+      ],
+      "brightened_intervals": [
+        {
+          "type": "dark",
+          "start": 6.0,
+          "end": 8.0,
+          "severity": "review",
+          "message": "Apply a modest exposure lift, then re-check highlights and noise.",
+          "frames": 24
+        }
+      ],
+      "human_control": "explicit repair command; original preserved"
+    },
+    {
+      "tool": "ffmpeg",
+      "argv": [
+        "ffmpeg",
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-nostdin",
+        "-n",
+        "-i",
+        "/home/pilot/workspace/hackathons/opencv/media/demo.mp4",
+        "-filter_complex",
+        "[0:v]eq=brightness=0.08:enable='between(t,6.000000,8.000000)'[exposed];[exposed]split=2[vin0][vin1];[vin0]trim=start=0.000000:end=4.000000,setpts=PTS-STARTPTS[v0];[vin1]trim=start=6.000000:end=12.000000,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[joined];[joined]scale=324:576:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=324:576:(ow-iw)/2:(oh-ih)/2:color=0x181c23,setsar=1[video]",
+        "-map",
+        "[video]",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "fast",
+        "-crf",
+        "18",
+        "-pix_fmt",
+        "yuv420p",
+        "-movflags",
+        "+faststart",
+        "work/demo-fixed/repaired.mp4"
+      ],
+      "output": "repaired.mp4"
+    },
+    {
+      "tool": "opencv.analyze",
+      "result": {
+        "status": "needs_review",
+        "issue_count": 6,
+        "types": [
+          "blur",
+          "caption_safe_zone",
+          "dark",
+          "flicker",
+          "scene_cut"
+        ]
+      },
+      "decision": "human_review_required"
+    }
+  ],
+  "before_issue_count": 11,
+  "after_issue_count": 6,
+  "original_preserved": true,
+  "limitations": "No semantic guarantee. Intentional stills may be removed; inspect output and audio before publishing."
+}
