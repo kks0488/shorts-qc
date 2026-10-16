@@ -1,14 +1,14 @@
 {
-  "captured_at": "2026-10-16T08:06:13.341864+00:00",
+  "captured_at": "2026-10-16T09:01:18.971767+00:00",
   "endpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws",
   "provenance": "Original motion design composed from our own app screen captures; no stock footage or external artwork.",
   "unit": "per decoded frame; no boundary tolerance",
   "clips": [
     {
       "file": "review-short-clean.mp4",
-      "job_id": "f788e6a5c7d18fcb509af4885bb81119e36cd84557f6a8384d5eb6861990fffd",
-      "request_id": "c0d130f7-a296-4e77-b5fc-6e263c490282",
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/f788e6a5c7d18fcb509af4885bb81119e36cd84557f6a8384d5eb6861990fffd/report.json",
+      "job_id": "29ffc05e858c18fe0d8f6db467dce9a7f5df80e7c3bb8506680559750005073e",
+      "request_id": "26d27bbc-4b43-4d5c-a3b1-3396f5c7bc3f",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/29ffc05e858c18fe0d8f6db467dce9a7f5df80e7c3bb8506680559750005073e/report.json",
       "metrics": {
         "blur": {
           "tp": 0,
@@ -41,16 +41,35 @@
           "tn": 288,
           "precision": null,
           "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
         }
       },
+      "analysis_seconds": 10.4085,
+      "upload_to_report_seconds": 20.1804,
+      "repaired_from": null,
       "frozen_frames": 0,
       "additional_findings": []
     },
     {
       "file": "review-short-defects.mp4",
-      "job_id": "9d55e99a979c1bffebc7fd6d5bb47bff11b3c6998005d11ffc4d9611436c43b6",
-      "request_id": "b5722e22-5d84-4ddf-9b10-6daa1421ffc3",
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/9d55e99a979c1bffebc7fd6d5bb47bff11b3c6998005d11ffc4d9611436c43b6/report.json",
+      "job_id": "56502dbfffda6b636b4d2a46fb486cf67d7841d6ff079f708c629d1feb06a239",
+      "request_id": "43632f63-6505-412f-897f-3f03596cfb07",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/56502dbfffda6b636b4d2a46fb486cf67d7841d6ff079f708c629d1feb06a239/report.json",
       "metrics": {
         "blur": {
           "tp": 24,
@@ -83,8 +102,27 @@
           "tn": 240,
           "precision": 1.0,
           "recall": 1.0
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
         }
       },
+      "analysis_seconds": 10.0655,
+      "upload_to_report_seconds": 16.8877,
+      "repaired_from": null,
       "frozen_frames": 0,
       "additional_findings": [
         {
@@ -107,9 +145,9 @@
     },
     {
       "file": "editor-short-clean.mp4",
-      "job_id": "79f55a44daaee1b3fcc40d33128f1cffae320d04dc564081a81a0ee729981bd3",
-      "request_id": "fafe877a-f277-42ac-bdb9-9b16e5bbf019",
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/79f55a44daaee1b3fcc40d33128f1cffae320d04dc564081a81a0ee729981bd3/report.json",
+      "job_id": "7fd967bc24ca9f95dc59a0bbefffe9024f669e87dfda8c05d3140cd9f92a971a",
+      "request_id": "a9853741-b868-42a7-9616-ad60f0e4f8a7",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/7fd967bc24ca9f95dc59a0bbefffe9024f669e87dfda8c05d3140cd9f92a971a/report.json",
       "metrics": {
         "blur": {
           "tp": 0,
@@ -142,16 +180,35 @@
           "tn": 288,
           "precision": null,
           "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
         }
       },
+      "analysis_seconds": 9.9944,
+      "upload_to_report_seconds": 16.6639,
+      "repaired_from": null,
       "frozen_frames": 0,
       "additional_findings": []
     },
     {
       "file": "editor-short-defects.mp4",
-      "job_id": "21a36ca034e6330d94a8c8891a723911c22a1b57cd17b5ac27ac79ba7e645b95",
-      "request_id": "40712343-e644-4b6a-9d33-97a91bcb11f3",
-      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/21a36ca034e6330d94a8c8891a723911c22a1b57cd17b5ac27ac79ba7e645b95/report.json",
+      "job_id": "a549f3b317800834545a87ef76afadb38902e2083507d446ca3acef40e9c8201",
+      "request_id": "be052e7d-d329-4638-8b5a-c7059896f354",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/a549f3b317800834545a87ef76afadb38902e2083507d446ca3acef40e9c8201/report.json",
       "metrics": {
         "blur": {
           "tp": 24,
@@ -184,8 +241,27 @@
           "tn": 240,
           "precision": 1.0,
           "recall": 1.0
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
         }
       },
+      "analysis_seconds": 9.8372,
+      "upload_to_report_seconds": 16.371,
+      "repaired_from": null,
       "frozen_frames": 0,
       "additional_findings": [
         {
@@ -205,52 +281,466 @@
           "frames": 1
         }
       ]
+    },
+    {
+      "file": "studio-short-clean.mp4",
+      "job_id": "ec606ce674030f83c4ec005e113e6d71bf7b6e4f7e7084037982090c7272a21d",
+      "request_id": "6b34bf27-8a55-45cd-978f-f8e264654706",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/ec606ce674030f83c4ec005e113e6d71bf7b6e4f7e7084037982090c7272a21d/report.json",
+      "metrics": {
+        "blur": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "black": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_safe_zone": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_clipped": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        }
+      },
+      "analysis_seconds": 9.977,
+      "upload_to_report_seconds": 16.3001,
+      "repaired_from": null,
+      "frozen_frames": 0,
+      "additional_findings": []
+    },
+    {
+      "file": "studio-short-defects.mp4",
+      "job_id": "d8034bb16d7a8eddd1c593aafa3e33f56820d3e9023551b63de68b4d024f04f1",
+      "request_id": "ed00896f-9a14-4fb1-8cef-172c0ee32558",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/d8034bb16d7a8eddd1c593aafa3e33f56820d3e9023551b63de68b4d024f04f1/report.json",
+      "metrics": {
+        "blur": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 0,
+          "tn": 264,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "black": {
+          "tp": 12,
+          "fp": 0,
+          "fn": 0,
+          "tn": 276,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "caption_safe_zone": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "tn": 240,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "caption_clipped": {
+          "tp": 48,
+          "fp": 0,
+          "fn": 0,
+          "tn": 240,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "frozen": {
+          "tp": 36,
+          "fp": 0,
+          "fn": 0,
+          "tn": 252,
+          "precision": 1.0,
+          "recall": 1.0
+        },
+        "dark": {
+          "tp": 24,
+          "fp": 0,
+          "fn": 0,
+          "tn": 264,
+          "precision": 1.0,
+          "recall": 1.0
+        }
+      },
+      "analysis_seconds": 9.8851,
+      "upload_to_report_seconds": 16.9112,
+      "repaired_from": null,
+      "frozen_frames": 36,
+      "additional_findings": [
+        {
+          "type": "scene_cut",
+          "start": 5.0,
+          "end": 5.0417,
+          "severity": "review",
+          "message": "Check this sudden change of shot. Keep it if the cut is intentional.",
+          "frames": 1
+        },
+        {
+          "type": "scene_cut",
+          "start": 5.5,
+          "end": 5.5417,
+          "severity": "review",
+          "message": "Check this sudden change of shot. Keep it if the cut is intentional.",
+          "frames": 1
+        },
+        {
+          "type": "scene_cut",
+          "start": 10.5,
+          "end": 10.5417,
+          "severity": "review",
+          "message": "Check this sudden change of shot. Keep it if the cut is intentional.",
+          "frames": 1
+        },
+        {
+          "type": "scene_cut",
+          "start": 11.5,
+          "end": 11.5417,
+          "severity": "review",
+          "message": "Check this sudden change of shot. Keep it if the cut is intentional.",
+          "frames": 1
+        }
+      ]
+    },
+    {
+      "file": "review-short-defects-repair/repaired.mp4",
+      "job_id": "f0f928f0c1897d41bbbc776090a3d23a77fd44270c02e9514a0d5c6574fc3f05",
+      "request_id": "a2405af9-d98b-4e83-9119-655648558bc8",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/f0f928f0c1897d41bbbc776090a3d23a77fd44270c02e9514a0d5c6574fc3f05/report.json",
+      "metrics": {
+        "blur": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "black": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_safe_zone": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_clipped": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        }
+      },
+      "analysis_seconds": 9.9843,
+      "upload_to_report_seconds": 16.1017,
+      "repaired_from": "review-short-defects.mp4",
+      "frozen_frames": 0,
+      "additional_findings": []
+    },
+    {
+      "file": "editor-short-defects-repair/repaired.mp4",
+      "job_id": "2170ff832cf607bb98984795613a888fe2813472d4464a48c141bbd55f6e5972",
+      "request_id": "001936c4-4ded-4f1a-abb9-f78cee2627ef",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/2170ff832cf607bb98984795613a888fe2813472d4464a48c141bbd55f6e5972/report.json",
+      "metrics": {
+        "blur": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "black": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_safe_zone": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_clipped": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        }
+      },
+      "analysis_seconds": 10.0776,
+      "upload_to_report_seconds": 16.3483,
+      "repaired_from": "editor-short-defects.mp4",
+      "frozen_frames": 0,
+      "additional_findings": []
+    },
+    {
+      "file": "studio-short-defects-repair/repaired.mp4",
+      "job_id": "f843f141971010c25a2e267f6ca764f18154cf63f42dc4402142507d291c37d0",
+      "request_id": "79570e5f-5026-49a9-8354-05b523375e32",
+      "report_url": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/reports/f843f141971010c25a2e267f6ca764f18154cf63f42dc4402142507d291c37d0/report.json",
+      "metrics": {
+        "blur": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "black": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_safe_zone": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "caption_clipped": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "frozen": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        },
+        "dark": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 288,
+          "precision": null,
+          "recall": null
+        }
+      },
+      "analysis_seconds": 9.956,
+      "upload_to_report_seconds": 16.2311,
+      "repaired_from": "studio-short-defects.mp4",
+      "frozen_frames": 0,
+      "additional_findings": []
     }
   ],
   "limitations": [
-    "Two original screen-demo styles with paired clean controls; not real-world accuracy.",
+    "Three original screen-demo styles with paired clean controls; not real-world accuracy.",
+    "Source restoration needs the aligned clean export; it cannot reconstruct lost detail from damaged pixels.",
     "Blur and black are exact injected intervals. Text flags are edge/safe-zone risks, not proof of lost words.",
     "Intentional stillness, app UI text, and transitions also require a creator's judgment."
   ],
   "metrics": {
     "blur": {
-      "tp": 48,
+      "tp": 72,
       "fp": 0,
       "fn": 0,
-      "tn": 1104,
+      "tn": 2520,
       "precision": 1.0,
       "recall": 1.0
     },
     "black": {
-      "tp": 24,
+      "tp": 36,
       "fp": 0,
       "fn": 0,
-      "tn": 1128,
+      "tn": 2556,
       "precision": 1.0,
       "recall": 1.0
     },
     "caption_safe_zone": {
-      "tp": 96,
+      "tp": 144,
       "fp": 0,
       "fn": 0,
-      "tn": 1056,
+      "tn": 2448,
       "precision": 1.0,
       "recall": 1.0
     },
     "caption_clipped": {
-      "tp": 96,
+      "tp": 144,
       "fp": 0,
       "fn": 0,
-      "tn": 1056,
+      "tn": 2448,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "frozen": {
+      "tp": 36,
+      "fp": 0,
+      "fn": 0,
+      "tn": 2556,
+      "precision": 1.0,
+      "recall": 1.0
+    },
+    "dark": {
+      "tp": 24,
+      "fp": 0,
+      "fn": 0,
+      "tn": 2568,
       "precision": 1.0,
       "recall": 1.0
     }
   },
-  "frames": 1152,
-  "review": {
-    "before_fix": "Severe blur generated 23 false freeze frames in each of two earlier shorts. An earlier moving heading also crossed the actual top guide; that control layout was corrected, without threshold changes.",
-    "final_freeze_frames": 0,
-    "scene_cut_context": "The two transition findings in each damaged short are the real edges of the injected black gap.",
-    "scope": "Original motion compositions from real app captures; no natural-camera footage or broad real-world accuracy claim."
-  }
+  "gate_checks": [
+    {
+      "file": "review-short-clean.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "review-short-defects.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "editor-short-clean.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "editor-short-defects.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "studio-short-clean.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "studio-short-defects.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "review-short-defects-repair/repaired.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "editor-short-defects-repair/repaired.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    },
+    {
+      "file": "studio-short-defects-repair/repaired.mp4",
+      "injected_intervals_matched_within_one_frame": true,
+      "unexpected_findings": [],
+      "pass_gate": true
+    }
+  ],
+  "coverage": {
+    "at_least_three_damaged": true,
+    "at_least_one_clean": true,
+    "all_required_checks_injected": true,
+    "every_damaged_clip_repaired": true,
+    "every_live_check_passed": true
+  },
+  "pass_gate": true,
+  "frames": 2592,
+  "latency_note": "Wall-clock upload creation through result fetch, including 3s polling; excludes local rendering/restoration."
 }

@@ -1,6 +1,7 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
+import {readFile, writeFile} from 'node:fs/promises';
+import path from 'node:path';
 
 const evidence=JSON.parse(await readFile('media/aws-evidence.json','utf8'));
 const base=evidence.endpoint;
@@ -8,7 +9,44 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.CH
 const watchdog=setTimeout(()=>browser.close().finally(()=>process.exit(1)),300000);
 try{
   const context=await browser.newContext({viewport:{width:1920,height:1080},deviceScaleFactor:1});
-  if(process.env.METRICS_ONLY){
+  if(process.env.GATE_RESULTS){
+    const results=JSON.parse(await readFile(process.env.GATE_RESULTS,'utf8'));
+    const checks=[],errors=[];
+    const page=await context.newPage();
+    page.on('pageerror',e=>errors.push(e.message));
+    for(const clip of results.clips){
+      const url=new URL(clip.report_url);
+      await page.goto(base+'/?report='+encodeURIComponent(url.pathname),{waitUntil:'networkidle'});
+      await page.waitForFunction(()=>document.getElementById('filename').textContent!=='Load a report to begin');
+      assert(await page.locator('#error').isHidden());
+      assert.equal(await page.locator('#cloud').textContent(),'AWS: processed');
+      assert.equal(await page.locator('#caption-status').textContent(),'DNN CAPTIONS ACTIVE');
+      const report=await (await page.request.get(clip.report_url)).json();
+      assert.equal(Number(await page.locator('#issue-count').textContent()),report.issues.length);
+      await page.locator('#video-file').setInputFiles(path.join(process.env.GATE_CLIPS||'work/gate',clip.file));
+      await page.locator('#video').evaluate(async v=>{
+        if(v.readyState<2)await new Promise((resolve,reject)=>{v.addEventListener('loadeddata',resolve,{once:true});v.addEventListener('error',()=>reject(Error('video decode failed')),{once:true});});
+        v.currentTime=2.5;await new Promise(r=>v.addEventListener('seeked',r,{once:true}));
+        await v.play();await new Promise(r=>v.requestVideoFrameCallback(r));v.pause();
+      });
+      for(const id of ['csv-link','sheet-link','json-link'])assert.equal((await page.request.get(await page.locator('#'+id).getAttribute('href'))).status(),200);
+      if(report.issues.length){
+        await page.locator('#findings .finding').first().click();
+        await page.locator('#filter').selectOption('error');
+        assert.equal(await page.locator('#findings .finding.review').count(),0);
+        await page.locator('#filter').selectOption('all');
+      }
+      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      if(clip.file==='studio-short-defects.mp4')await page.screenshot({path:'media/realism-live.png'});
+      await page.setViewportSize({width:390,height:844});
+      assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+      await page.setViewportSize({width:1920,height:1080});
+      checks.push({file:clip.file,report_url:clip.report_url,issues:report.issues.length,decode_seek_download_filter_desktop_mobile:'PASS'});
+    }
+    assert.deepEqual(errors,[]);
+    await writeFile(path.join(path.dirname(process.env.GATE_RESULTS),'browser.json'),JSON.stringify({checked_at:new Date().toISOString(),checks,page_errors:errors},null,2)+'\n');
+    console.log(`PASS: ${checks.length} live AWS reports, original/repaired video decode and seek, evidence downloads, filter, desktop/mobile; no page errors.`);
+  }else if(process.env.METRICS_ONLY){
     const proof=await context.newPage();
     const escape=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
     const data=evidence.cloudwatch_metrics.MetricDataResults;

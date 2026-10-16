@@ -188,9 +188,10 @@ def analyze(input_path, output_dir, config=None, text_model=None):
                    "structure_difference": round(structure_diff, 4), "text_boxes": boxes,
                    "blur": blurry,
                    "black": black, "dark": not black and mean < cfg.dark_mean,
-                   # Severe blur destroys motion evidence. It must not also offer
-                   # a freeze trim that could discard a moving but blurred shot.
-                   "frozen": previous is not None and not black and not blurry and not rows[-1]["blur"] and diff < cfg.freeze_diff and similarity > .99,
+                   # Blur and low exposure destroy motion evidence. Withhold a
+                   # destructive freeze recommendation until detail is reliable.
+                   "frozen": previous is not None and not black and mean >= cfg.dark_mean and rows[-1]["mean"] >= cfg.dark_mean
+                             and not blurry and not rows[-1]["blur"] and diff < cfg.freeze_diff and similarity > .99,
                    "scene_cut": previous is not None and diff > cfg.cut_diff and similarity < cfg.cut_ssim and structure_diff > cfg.flicker_structure_diff,
                    "flicker": False, "caption_safe_zone": unsafe, "caption_clipped": clipped,
                    "letterbox": letterbox(gray, cfg), "aspect_ratio": abs(width/height-9/16) > cfg.aspect_tolerance}
@@ -227,6 +228,7 @@ def analyze(input_path, output_dir, config=None, text_model=None):
               "fix_plan": [{"type": kind, "action": FIXES[kind], "automatic_candidate": kind in ("black", "frozen", "dark", "aspect_ratio")} for kind in sorted({i["type"] for i in issues})],
               "artifacts": {"metrics": "metrics.csv", "contact_sheet": "contact-sheet.jpg"},
               "limitations": ["Heuristic thresholds require calibration to the source style.",
+                              "Freeze recommendations are withheld during severe blur and low exposure because motion evidence is unreliable.",
                               "Intentional stills, fades and cuts require human review.",
                               "Safe zones are configurable generic guides, not platform guarantees.",
                               "Text detection cannot prove that missing glyphs were cropped; edge contact is a risk signal.",

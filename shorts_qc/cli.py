@@ -20,6 +20,8 @@ def main():
         p.add_argument("--out", required=True)
         p.add_argument("--config", help="JSON object of Config thresholds")
         p.add_argument("--text-model", default=os.environ.get("SHORTS_QC_TEXT_MODEL"))
+        if name == "repair":
+            p.add_argument("--reference", help="Matching clean source export for source-aware restoration of flagged spans")
     p = sub.add_parser("synthesize")
     p.add_argument("--out", required=True)
     p.add_argument("--seed", type=int, default=2026)
@@ -40,7 +42,7 @@ def main():
                 print(json.dumps(result["summary"], indent=2))
             else:
                 from .repair import repair
-                print(json.dumps(repair(args.video, args.out, config=config, text_model=args.text_model), indent=2))
+                print(json.dumps(repair(args.video, args.out, config=config, text_model=args.text_model, reference=args.reference), indent=2))
         elif args.command == "synthesize":
             from .synthetic import generate_dataset
             generate_dataset(args.out, seed=args.seed)

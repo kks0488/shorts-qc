@@ -12,6 +12,7 @@ try {
   const sources = [
     {name:'review-short', image:'media/aws-viewer.png', title:'Check the frame.\nKeep the story.', label:'THE CREATOR WORKFLOW', detail:'Review your video\nbefore you publish.', color:'#1d7665'},
     {name:'editor-short', image:'media/viewer-finding.png', title:'Find the moment.\nReview the fix.', label:'THE EDITOR WORKFLOW', detail:'Find the frame.\nChoose the next step.', color:'#64543e'},
+    {name:'studio-short', image:'media/aws-upload-complete.png', title:'Keep it moving.\nCheck the light.', label:'THE STUDIO WORKFLOW', detail:'A clear export.\nA careful final check.', color:'#395f86'},
   ];
   const manifest = {schema_version:'1.0', fps:24, duration:12, width:720, height:1280,
     provenance:'Original motion design composed from our own app screen captures; no stock footage or external artwork.',
@@ -42,11 +43,12 @@ try {
     run(['-loop','1','-i',path.join(out,`${item.name}.png`),'-vf',
       "scale=1440:2560,zoompan=z='1.02+0.00014*on':x='iw/2-iw/zoom/2+12*sin(on/35)':y='ih/2-ih/zoom/2':d=288:s=720x1280:fps=24",
       '-frames:v','288','-c:v','libx264','-preset','fast','-crf','18','-pix_fmt','yuv420p',path.join(out,clean)]);
-    run(['-i',path.join(out,clean),'-vf',
+    run(['-i',path.join(out,clean),'-filter_complex',
+      (item.name==='studio-short'?"[0:v]split[a][b];[a][b]freezeframes=first=144:last=179:replace=143,lutrgb=r=val*0.15:g=val*0.15:b=val*0.15:enable='gte(t,10.5)*lt(t,11.5)',":"[0:v]")+
       "gblur=sigma=22:enable='gte(t,2)*lt(t,3)',drawbox=x=0:y=0:w=iw:h=ih:color=black:t=fill:enable='gte(t,5)*lt(t,5.5)',drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:text='Keep this caption in view':fontsize=38:fontcolor=white:box=1:boxcolor=black:x=70:y=1253:enable='gte(t,8)*lt(t,10)'",
       '-c:v','libx264','-preset','fast','-crf','18','-pix_fmt','yuv420p',path.join(out,defect)]);
-    for(const [file, damaged] of [[clean,false],[defect,true]]) manifest.clips.push({file, style:item.name,
-      defects:damaged?{blur:[[2,3]],black:[[5,5.5]],caption_safe_zone:[[8,10]],caption_clipped:[[8,10]]}:{},
+    for(const [file, damaged] of [[clean,false],[defect,true]]) manifest.clips.push({file, style:item.name, reference:damaged?clean:undefined,
+      defects:damaged?{blur:[[2,3]],black:[[5,5.5]],caption_safe_zone:[[8,10]],caption_clipped:[[8,10]],...(item.name==='studio-short'?{frozen:[[6,7.5]],dark:[[10.5,11.5]]}:{})}:{},
       intentional:'Slow screen-demo camera motion and graphic background; stillness is intentional, and screen text is not a spoken caption.'});
   }
   await writeFile(path.join(out,'manifest.json'),JSON.stringify(manifest,null,2)+'\n');

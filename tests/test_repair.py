@@ -63,3 +63,54 @@ def test_repair_refuses_empty_candidate(tmp_path):
     writer.release()
     with pytest.raises(ValueError, match="no video remains"):
         repair(source, tmp_path/"empty")
+
+
+def test_reference_restores_flagged_spans_without_changing_timing(audio_clip, tmp_path):
+    reference = tmp_path/"reference.mp4"
+    writer = cv.VideoWriter(str(reference), cv.VideoWriter_fourcc(*"mp4v"), 12, (324, 576))
+    for i in range(36):
+        writer.write(_scene(810, i))
+    writer.release()
+    source_hash = hashlib.sha256(audio_clip.read_bytes()).hexdigest()
+    trace = repair(audio_clip, tmp_path/"restored", reference=reference)
+    after = json.loads((tmp_path/"restored/after/report.json").read_text())
+    assert "black" not in after["summary"]["types"]
+    assert after["source"]["frames"] == 36
+    assert after["source"]["duration"] == 3
+    assert trace["reference_sha256"] == hashlib.sha256(reference.read_bytes()).hexdigest()
+    assert hashlib.sha256(audio_clip.read_bytes()).hexdigest() == source_hash
+    streams = json.loads(subprocess.run(["ffprobe", "-v", "error", "-show_streams", "-of", "json",
+        str(tmp_path/"restored/repaired.mp4")], check=True, capture_output=True, text=True).stdout)["streams"]
+    assert {s["codec_type"] for s in streams} == {"audio", "video"}
+    assert abs(float(streams[0]["duration"])-float(streams[1]["duration"])) < .1
+    with pytest.raises(ValueError, match="already exists"):
+        repair(audio_clip, tmp_path/"restored", reference=reference)
+
+
+def test_reference_must_match_frame_count(audio_clip, tmp_path):
+    reference = tmp_path/"short-reference.mp4"
+    writer = cv.VideoWriter(str(reference), cv.VideoWriter_fourcc(*"mp4v"), 12, (324, 576))
+    for i in range(24):
+        writer.write(_scene(810, i))
+    writer.release()
+    with pytest.raises(ValueError, match="match dimensions, frame rate and frame count"):
+        repair(audio_clip, tmp_path/"refused", reference=reference)
+    assert not (tmp_path/"refused/repaired.mp4").exists()
+
+
+def test_live_gate_rejects_empty_incomplete_or_unrepaired_datasets():
+    import runpy
+    from pathlib import Path
+
+    module = runpy.run_path(str(Path(__file__).parents[1]/"scripts/realism-live.py"))
+    coverage = module["gate_coverage"]
+    assert not all(coverage({"clips": []}, [], [], True).values())
+    damaged = [dict(file=f"damaged-{i}.mp4", defects={k: [[1, 2]] for k in module["KINDS"]}) for i in range(3)]
+    manifest = {"clips": [*damaged, dict(file="clean.mp4", defects={})]}
+    results = [*manifest["clips"], *[dict(repaired_from=c["file"]) for c in damaged]]
+    checks = [dict(pass_gate=True) for _ in results]
+    assert all(coverage(manifest, results, checks, True).values())
+    assert not all(coverage(manifest, results[:-1], checks[:-1], True).values())
+    assert not all(coverage(manifest, results, checks, False).values())
+    checks[-1]["pass_gate"] = False
+    assert not all(coverage(manifest, results, checks, True).values())

@@ -64,6 +64,20 @@ def test_caption_geometry():
     assert caption_flags([{"x": 0., "y": .2, "w": .5, "h": .1}], cfg) == (True, True)
 
 
+def test_low_exposure_does_not_propose_freeze_trim(tmp_path):
+    import numpy as np
+    from shorts_qc.synthetic import _scene
+
+    source = tmp_path/"low-exposure.mp4"
+    writer = cv.VideoWriter(str(source), cv.VideoWriter_fourcc(*"mp4v"), 12, (324, 576))
+    for i in range(24):
+        writer.write((_scene(810, i).astype(np.float32)*.15).astype(np.uint8))
+    writer.release()
+    report = analyze(source, tmp_path/"report")
+    assert "dark" in report["summary"]["types"]
+    assert "frozen" not in report["summary"]["types"]
+
+
 def test_actual_dnn_caption_detection(dataset, tmp_path):
     model = os.environ.get("SHORTS_QC_TEXT_MODEL")
     if not model:

@@ -446,5 +446,12 @@
       }
     ],
     "Messages": []
+  },
+  "gate_deployment": {
+    "verified_at": "2026-10-16T09:04:18.178449+00:00",
+    "state": "Active",
+    "updated": "2026-10-16T08:59:56.000+0000",
+    "image": "381183038133.dkr.ecr.ap-southeast-2.amazonaws.com/shorts-qc@sha256:5a89e62cfa1f7bb00c5f580492145fcf3a8c8fdc4ed8c3bfe3d25fee6baa324a",
+    "change": "Withhold freeze recommendations during low exposure; bounded source-aware local restoration added."
   }
 }
