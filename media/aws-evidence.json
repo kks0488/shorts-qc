@@ -5,7 +5,7 @@
   "stack_status": "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
   "outputs": {
     "UploadEndpoint": "https://sqwx2xhlolb632f7sbevcdes6y0xsdyq.lambda-url.ap-southeast-2.on.aws/api/uploads",
-    "UploadBucket": "shorts-qc-381183038133-ap-southeast-2-uploads",
+    "UploadBucket": "shorts-qc-<AWS_ACCOUNT_ID>-ap-southeast-2-uploads",
     "ReportBucket": "shorts-qc-reportbucket-b8qjap07vgrm",
     "Logs": "/aws/lambda/shorts-qc-analyze",
     "ApiFunction": "shorts-qc-api",
@@ -143,7 +143,7 @@
     },
     {
       "LogicalResourceId": "ApiUrl",
-      "PhysicalResourceId": "arn:aws:lambda:ap-southeast-2:381183038133:function:shorts-qc-api",
+      "PhysicalResourceId": "arn:aws:lambda:ap-southeast-2:<AWS_ACCOUNT_ID>:function:shorts-qc-api",
       "ResourceType": "AWS::Lambda::Url",
       "LastUpdatedTimestamp": "2026-10-16T07:10:54.910000+00:00",
       "ResourceStatus": "CREATE_COMPLETE",
@@ -193,7 +193,7 @@
     },
     {
       "LogicalResourceId": "UploadBucket",
-      "PhysicalResourceId": "shorts-qc-381183038133-ap-southeast-2-uploads",
+      "PhysicalResourceId": "shorts-qc-<AWS_ACCOUNT_ID>-ap-southeast-2-uploads",
       "ResourceType": "AWS::S3::Bucket",
       "LastUpdatedTimestamp": "2026-10-16T07:10:23.228000+00:00",
       "ResourceStatus": "CREATE_COMPLETE",
@@ -203,7 +203,7 @@
     },
     {
       "LogicalResourceId": "UploadBucketPolicy",
-      "PhysicalResourceId": "shorts-qc-381183038133-ap-southeast-2-uploads",
+      "PhysicalResourceId": "shorts-qc-<AWS_ACCOUNT_ID>-ap-southeast-2-uploads",
       "ResourceType": "AWS::S3::BucketPolicy",
       "LastUpdatedTimestamp": "2026-10-16T07:10:25.621000+00:00",
       "ResourceStatus": "CREATE_COMPLETE",
@@ -213,7 +213,7 @@
     }
   ],
   "free_plan": {
-    "accountId": "381183038133",
+    "accountId": "<AWS_ACCOUNT_ID>",
     "accountPlanType": "FREE",
     "accountPlanStatus": "ACTIVE",
     "accountPlanRemainingCredits": {
@@ -451,7 +451,7 @@
     "verified_at": "2026-10-16T09:04:18.178449+00:00",
     "state": "Active",
     "updated": "2026-10-16T08:59:56.000+0000",
-    "image": "381183038133.dkr.ecr.ap-southeast-2.amazonaws.com/shorts-qc@sha256:5a89e62cfa1f7bb00c5f580492145fcf3a8c8fdc4ed8c3bfe3d25fee6baa324a",
+    "image": "<AWS_ACCOUNT_ID>.dkr.ecr.ap-southeast-2.amazonaws.com/shorts-qc@sha256:5a89e62cfa1f7bb00c5f580492145fcf3a8c8fdc4ed8c3bfe3d25fee6baa324a",
     "change": "Withhold freeze recommendations during low exposure; bounded source-aware local restoration added."
   }
 }

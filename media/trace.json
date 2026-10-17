@@ -51,7 +51,7 @@
         "-nostdin",
         "-n",
         "-i",
-        "/home/pilot/workspace/hackathons/opencv/media/demo.mp4",
+        "media/demo.mp4",
         "-filter_complex",
         "[0:v]eq=brightness=0.08:enable='between(t,6.000000,8.000000)'[exposed];[exposed]split=2[vin0][vin1];[vin0]trim=start=0.000000:end=4.000000,setpts=PTS-STARTPTS[v0];[vin1]trim=start=6.000000:end=12.000000,setpts=PTS-STARTPTS[v1];[v0][v1]concat=n=2:v=1:a=0[joined];[joined]scale=324:576:force_original_aspect_ratio=decrease:force_divisible_by=2,pad=324:576:(ow-iw)/2:(oh-ih)/2:color=0x181c23,setsar=1[video]",
         "-map",
